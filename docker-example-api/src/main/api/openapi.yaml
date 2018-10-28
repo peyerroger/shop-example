@@ -1,0 +1,116 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: @VERSION@
+servers: []
+paths:
+  /products:
+    get:
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/product'
+      operationId: GetProducts
+    post:
+      responses:
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+      operationId: PostProduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+        required: true
+  /products/{productId}:
+    get:
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+      operationId: GetProductByProductId
+    put:
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+      operationId: PutProductByProductId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+        required: true
+    delete:
+      responses:
+        200:
+          description: ''
+      operationId: DeleteProductByProductId
+    parameters:
+    - name: productId
+      in: path
+      required: true
+      schema:
+        type: string
+  /products/{productId}/price:
+    get:
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: number
+      operationId: GetProductByProductIdPrice
+    parameters:
+    - name: productId
+      in: path
+      required: true
+      schema:
+        type: string
+components:
+  schemas:
+    product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        releaseDate:
+          type: string
+          format: date
+        createdOn:
+          type: string
+          format: date-time
+      required:
+      - name
+      - price
+      - releaseDate
+      - createdOn
+      - someOtherDate
+  responses: {}
+  parameters: {}
+  examples: {}
+  requestBodies: {}
+  headers: {}
+  securitySchemes: {}
+  links: {}
+  callbacks: {}

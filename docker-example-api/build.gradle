@@ -1,0 +1,34 @@
+apply plugin: "base"
+apply plugin: "maven-publish"
+apply plugin: "org.openapi.generator"
+
+task openApiGenerateFinalSpec(type: Copy) {
+    group = "openapi"
+    from ('src/main/api'){
+        eachFile {filter{ it.replaceAll('@VERSION@', project.version.toString())}}
+    }
+    into "$buildDir/openapi/spec/$project.version"
+}
+
+task openApiAssembleArtifact(type: Zip) {
+    group = "openapi"
+    archiveName "${project.name}.zip"
+    destinationDir file("$buildDir/openapi/dist/")
+    from "$buildDir/openapi/spec/$project.version"
+}
+
+publishing{
+    publications {
+        mavenDistribution(MavenPublication) {
+            artifact source: openApiAssembleArtifact, extension: 'zip'
+        }
+    }
+}
+
+openApiValidate {
+    inputSpec = "$buildDir/openapi/spec/$project.version/openapi.yaml".toString()
+}
+
+openApiAssembleArtifact.dependsOn tasks.openApiGenerateFinalSpec
+tasks.openApiValidate.dependsOn tasks.openApiGenerateFinalSpec
+check.dependsOn tasks.openApiValidate

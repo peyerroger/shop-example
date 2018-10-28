@@ -1,0 +1,68 @@
+apply plugin: "java"
+apply plugin: "checkstyle"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "com.bmuschko.docker-remote-api"
+apply plugin: "com.bmuschko.docker-spring-boot-application"
+apply plugin: "org.openapi.generator"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+sourceSets {
+    main{
+        java {
+            srcDirs = ['build/openapi/docker-example-api/src/main/java','src/main/java']
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.21'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+docker {
+    registryCredentials {
+        username = project.property('docker.registry.username')
+        password = project.property('docker.registry.password')
+    }
+
+    springBootApplication {
+        tag = "localhost:8083/docker-example:$project.version".toString()
+    }
+}
+
+task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask){
+    group = "openapi"
+    generatorName = "spring"
+    inputSpec = "docker-example-api/build/openapi/spec/$project.version/openapi.yaml".toString()
+    outputDir = "$buildDir/openapi/docker-example-api/".toString()
+    library = "spring-mvc"
+    apiPackage = "com.rogerpeyer.dockerexample.api"
+    modelPackage = "com.rogerpeyer.dockerexample.api.model"
+    configOptions = [
+            dateLibrary: "java8",
+            java8: "true",
+            interfaceOnly: "true"
+    ]
+}
+
+bootJar {
+    classifier = 'boot'
+}
+
+checkstyle {
+    toolVersion '8.14'
+    checkstyleMain.exclude 'com/rogerpeyer/dockerexample/api/**'
+}
+
+compileJava.dependsOn tasks.openApiGenerateApi
+openApiGenerateApi.dependsOn ':docker-example-api:openApiGenerateFinalSpec'

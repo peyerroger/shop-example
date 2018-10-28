@@ -1,0 +1,23 @@
+allprojects {
+    group 'com.rogerpeyer'
+    version '1.1.0-SNAPSHOT'
+
+    buildscript {
+        repositories {
+            maven {
+                url "https://plugins.gradle.org/m2/"
+            }
+            maven {
+                url "https://dl.bintray.com/bmuschko/gradle-plugins"
+            }
+            mavenCentral()
+            jcenter()
+        }
+        dependencies {
+            classpath "io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE"
+            classpath "org.springframework.boot:spring-boot-gradle-plugin:2.0.6.RELEASE"
+            classpath "com.bmuschko:gradle-docker-plugin:4.0.1"
+            classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.1"
+        }
+    }
+}

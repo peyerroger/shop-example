@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        jcenter()
+    }
+}
+rootProject.name = 'docker-example'
+include 'docker-example-appl'
+include 'docker-example-api'
+
