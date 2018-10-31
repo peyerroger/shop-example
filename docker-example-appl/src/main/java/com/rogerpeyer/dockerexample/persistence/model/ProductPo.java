@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 public class ProductPo {
 
   @Id
-  @GeneratedValue(strategy= GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
   @Version
@@ -35,6 +35,9 @@ public class ProductPo {
 
   private OffsetDateTime createdOn;
 
+  /**
+   * Pre persist.
+   */
   @PrePersist
   public void prePersist() {
     createdOn = OffsetDateTime.now();
@@ -42,6 +45,9 @@ public class ProductPo {
 
   }
 
+  /**
+   * Pre update.
+   */
   @PreUpdate
   public void preUpdate() {
     lastModified = OffsetDateTime.now();

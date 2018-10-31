@@ -1,8 +1,8 @@
-package com.rogerpeyer.dockerexample.integrationtest;
+package com.rogerpeyer.dockerexample.controller;
 
 import com.rogerpeyer.dockerexample.api.ProductsApi;
 import com.rogerpeyer.dockerexample.api.model.Product;
-import com.rogerpeyer.dockerexample.integrationtest.converter.ProductConverter;
+import com.rogerpeyer.dockerexample.controller.converter.ProductConverter;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.ProductRepository;
 import java.math.BigDecimal;
@@ -59,7 +59,7 @@ public class ProductImpl implements ProductsApi {
   public ResponseEntity<Product> putProductByProductId(Long productId, @Valid Product product) {
     ProductPo productPo = productRepository.findById(productId)
         .orElseThrow(() -> new RuntimeException("Could not find Product."));
-    productPo = productConverter.convert(product, productPo);
+    productPo = productConverter.merge(product, productPo);
     productPo = productRepository.saveAndFlush(productPo);
     return ResponseEntity.ok(productConverter.convert(productPo));
   }
