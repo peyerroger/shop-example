@@ -66,7 +66,8 @@ paths:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
   /products/{productId}/price:
     get:
       responses:
@@ -82,14 +83,19 @@ paths:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
 components:
   schemas:
     product:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int64
         name:
           type: string
         price:
@@ -100,12 +106,13 @@ components:
         createdOn:
           type: string
           format: date-time
+        lastModified:
+          type: string
+          format: date-time
       required:
       - name
       - price
       - releaseDate
-      - createdOn
-      - someOtherDate
   responses: {}
   parameters: {}
   examples: {}

@@ -14,19 +14,22 @@ repositories {
 }
 
 sourceSets {
-    main{
+    main {
         java {
-            srcDirs = ['build/openapi/docker-example-api/src/main/java','src/main/java']
+            srcDirs = ['build/openapi/docker-example-api/src/main/java', 'src/main/java']
         }
     }
 }
 
 dependencies {
 
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.21'
+    compile group: 'com.h2database', name: 'h2'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 
 docker {
@@ -40,17 +43,17 @@ docker {
     }
 }
 
-task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask){
+task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
     group = "openapi"
     generatorName = "spring"
-    inputSpec = "docker-example-api/build/openapi/spec/$project.version/openapi.yaml".toString()
+    inputSpec = "$rootDir/docker-example-api/build/openapi/spec/$project.version/openapi.yaml".toString()
     outputDir = "$buildDir/openapi/docker-example-api/".toString()
     library = "spring-mvc"
     apiPackage = "com.rogerpeyer.dockerexample.api"
     modelPackage = "com.rogerpeyer.dockerexample.api.model"
     configOptions = [
-            dateLibrary: "java8",
-            java8: "true",
+            dateLibrary  : "java8",
+            java8        : "true",
             interfaceOnly: "true"
     ]
 }
