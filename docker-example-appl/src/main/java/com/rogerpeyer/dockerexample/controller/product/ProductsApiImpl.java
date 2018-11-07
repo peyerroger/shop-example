@@ -1,11 +1,11 @@
-package com.rogerpeyer.dockerexample.controller;
+package com.rogerpeyer.dockerexample.controller.product;
 
 import com.rogerpeyer.dockerexample.api.ProductsApi;
 import com.rogerpeyer.dockerexample.api.model.Product;
-import com.rogerpeyer.dockerexample.controller.converter.ProductConverter;
+import com.rogerpeyer.dockerexample.api.model.ProductInput;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
-import com.rogerpeyer.dockerexample.persistence.repository.ProductRepository;
-import java.math.BigDecimal;
+import com.rogerpeyer.dockerexample.persistence.repository.jpa.ProductRepository;
+import com.rogerpeyer.dockerexample.service.product.ProductService;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +14,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class ProductImpl implements ProductsApi {
+public class ProductsApiImpl implements ProductsApi {
 
-  private final ProductConverter productConverter;
+  private final ProductService productService;
   private final ProductRepository productRepository;
 
+  /**
+   * Constructor.
+   *
+   * @param productService    the product converter
+   * @param productRepository the product repository
+   */
   @Autowired
-  public ProductImpl(
-      ProductConverter productConverter,
+  public ProductsApiImpl(
+      ProductService productService,
       ProductRepository productRepository) {
-    this.productConverter = productConverter;
+    this.productService = productService;
     this.productRepository = productRepository;
   }
 
@@ -38,36 +44,31 @@ public class ProductImpl implements ProductsApi {
   @Override
   public ResponseEntity<List<Product>> getProducts() {
     List<ProductPo> productPos = productRepository.findAll();
-    return ResponseEntity.ok(productConverter.convert(productPos));
+    return ResponseEntity.ok(productService.calculateOutput(productPos));
   }
 
   @Override
-  public ResponseEntity<Product> postProduct(@Valid Product product) {
-    ProductPo productPo = productConverter.convert(product);
+  public ResponseEntity<Product> postProduct(@Valid ProductInput productInput) {
+    ProductPo productPo = productService.calculateInput(productInput, null);
     productPo = productRepository.saveAndFlush(productPo);
-    return ResponseEntity.status(HttpStatus.CREATED).body(productConverter.convert(productPo));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(productService.calculateOutput(productPo));
   }
 
   @Override
   public ResponseEntity<Product> getProductByProductId(Long productId) {
     ProductPo productPo = productRepository.findById(productId)
         .orElseThrow(() -> new RuntimeException("Could not find Product."));
-    return ResponseEntity.ok(productConverter.convert(productPo));
+    return ResponseEntity.ok(productService.calculateOutput(productPo));
   }
 
   @Override
-  public ResponseEntity<Product> putProductByProductId(Long productId, @Valid Product product) {
+  public ResponseEntity<Product> putProductByProductId(Long productId,
+      @Valid ProductInput productInput) {
     ProductPo productPo = productRepository.findById(productId)
         .orElseThrow(() -> new RuntimeException("Could not find Product."));
-    productPo = productConverter.merge(product, productPo);
+    productPo = productService.calculateInput(productInput, productPo);
     productPo = productRepository.saveAndFlush(productPo);
-    return ResponseEntity.ok(productConverter.convert(productPo));
-  }
-
-  @Override
-  public ResponseEntity<BigDecimal> getProductByProductIdPrice(Long productId) {
-    ProductPo productPo = productRepository.findById(productId)
-        .orElseThrow(() -> new RuntimeException("Could not find Product."));
-    return ResponseEntity.ok(productPo.getPrice());
+    return ResponseEntity.ok(productService.calculateOutput(productPo));
   }
 }
