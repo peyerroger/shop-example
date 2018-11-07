@@ -1,8 +1,9 @@
 package com.rogerpeyer.dockerexample.integrationtest;
 
 import com.rogerpeyer.dockerexample.api.model.Product;
+import com.rogerpeyer.dockerexample.api.model.ProductInput;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
-import com.rogerpeyer.dockerexample.persistence.repository.ProductRepository;
+import com.rogerpeyer.dockerexample.persistence.repository.jpa.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,24 +12,15 @@ import java.util.UUID;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ProductApiTest {
-
-  @Autowired
-  private TestRestTemplate testRestTemplate;
+public class ProductApiTest extends ApiTest {
 
   @Autowired
   private ProductRepository productRepository;
@@ -41,14 +33,14 @@ public class ProductApiTest {
   @Test
   public void postProduct() {
 
-    Product product = new Product();
-    product.setName(UUID.randomUUID().toString());
-    product.setPrice(BigDecimal.valueOf(new Random().nextDouble()));
-    product.setReleaseDate(LocalDate.now().minusYears(1));
+    ProductInput productInput = new ProductInput();
+    productInput.setName(UUID.randomUUID().toString());
+    productInput.setPrice(BigDecimal.valueOf(new Random().nextDouble()));
+    productInput.setReleaseDate(LocalDate.now().minusYears(1));
 
     ResponseEntity<Product> responseEntity = testRestTemplate.postForEntity(
         "/products",
-        product,
+        productInput,
         Product.class
     );
 
@@ -83,7 +75,7 @@ public class ProductApiTest {
 
     Product product1 = responseEntity.getBody();
 
-    Assert.assertNotNull(product1);
+    Assert.assertNotNull(product1.getId());
 
   }
 
@@ -96,11 +88,10 @@ public class ProductApiTest {
     productPo.setReleaseDate(LocalDate.now().minusYears(1));
     productPo = productRepository.saveAndFlush(productPo);
 
-    Product product = new Product();
+    ProductInput product = new ProductInput();
     product.setName(UUID.randomUUID().toString());
     product.setPrice(BigDecimal.valueOf(new Random().nextDouble()));
     product.setReleaseDate(LocalDate.now().minusYears(2));
-    product.setId(productPo.getId());
     product.setVersion(productPo.getVersion());
 
     ResponseEntity<Product> responseEntity = testRestTemplate.exchange(
@@ -162,7 +153,8 @@ public class ProductApiTest {
         "/products",
         HttpMethod.GET,
         null,
-        new ParameterizedTypeReference<List<Product>>(){}
+        new ParameterizedTypeReference<List<Product>>() {
+        }
     );
 
     Assert.assertNotNull(responseEntity);
