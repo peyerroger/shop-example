@@ -5,15 +5,26 @@ import com.rogerpeyer.dockerexample.api.model.OrderInput;
 import com.rogerpeyer.dockerexample.api.model.OrderItems;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
-import java.time.OffsetDateTime;
+import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
+import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
+
+  private final ProductRepository productRepository;
+
+  @Autowired
+  public OrderService(ProductRepository productRepository) {
+    this.productRepository = productRepository;
+  }
 
   /**
    * Calculate the output product.
@@ -24,16 +35,24 @@ public class OrderService {
   public Order calculateOutput(OrderPo orderPo) {
     Order order = new Order();
     order.setId(orderPo.getId());
+    order.setVersion(orderPo.getVersion());
     order.setCreatedOn(orderPo.getCreatedOn());
     order.setLastModified(orderPo.getLastModified());
     if (orderPo.getItems() != null) {
-      order.setItems(orderPo.getItems().stream().map(orderItemPo -> {
-        OrderItems orderItems = new OrderItems();
-        orderItems.setQuantity(orderItemPo.getQuantity());
-        orderItems.setProductId(orderItemPo.getProductId());
-        return orderItems;
-      }).collect(Collectors.toList()));
+      order.setItems(
+          orderPo
+              .getItems()
+              .stream()
+              .map(
+                  orderItemPo -> {
+                    OrderItems orderItems = new OrderItems();
+                    orderItems.setQuantity(orderItemPo.getQuantity());
+                    orderItems.setProductId(orderItemPo.getProductId());
+                    return orderItems;
+                  })
+              .collect(Collectors.toList()));
     }
+    order = calculatePrices(order);
     return order;
   }
 
@@ -43,12 +62,11 @@ public class OrderService {
    * @param orderPos the persistence objects
    * @return the api objects.
    */
-  public List<Order> calculateOutput(Iterable<OrderPo> orderPos) {
+  public List<Order> calculateOutput(List<OrderPo> orderPos) {
     if (orderPos == null) {
       return new ArrayList<>();
     } else {
-      return StreamSupport.stream(orderPos.spliterator(), false)
-          .map(this::calculateOutput).collect(Collectors.toList());
+      return orderPos.stream().map(this::calculateOutput).collect(Collectors.toList());
     }
   }
 
@@ -56,25 +74,64 @@ public class OrderService {
    * Merges an existing persistence object with an api object.
    *
    * @param orderInput the api object
-   * @param orderPo    the existing persistence object
+   * @param orderPo the existing persistence object
    */
   public OrderPo calculateInput(OrderInput orderInput, OrderPo orderPo) {
     if (orderPo == null) {
       orderPo = new OrderPo();
-      orderPo.setCreatedOn(OffsetDateTime.now());
+    } else {
+      orderPo.setVersion(orderInput.getVersion());
     }
-    orderPo.setLastModified(OffsetDateTime.now());
     if (orderInput.getItems() != null) {
-      orderPo.setItems(orderInput.getItems().stream().map(orderInputItems -> {
-        OrderItemPo orderItemPo = new OrderItemPo();
-        orderItemPo.setQuantity(orderInputItems.getQuantity());
-        orderItemPo.setProductId(orderInputItems.getProductId());
-        return orderItemPo;
-      }).collect(Collectors.toList()));
+      orderPo.setItems(
+          orderInput
+              .getItems()
+              .stream()
+              .map(
+                  orderInputItems -> {
+                    OrderItemPo orderItemPo = new OrderItemPo();
+                    orderItemPo.setQuantity(orderInputItems.getQuantity());
+                    orderItemPo.setProductId(orderInputItems.getProductId());
+                    return orderItemPo;
+                  })
+              .collect(Collectors.toList()));
     } else {
       orderPo.setItems(null);
     }
     return orderPo;
   }
 
+  private Order calculatePrices(Order order) {
+
+    // Create Price Map
+    Map<String, BigDecimal> priceMap =
+        StreamSupport.stream(
+                productRepository
+                    .findAllById(
+                        order
+                            .getItems()
+                            .stream()
+                            .map(OrderItems::getProductId)
+                            .collect(Collectors.toSet()))
+                    .spliterator(),
+                false)
+            .collect(Collectors.toMap(ProductPo::getId, ProductPo::getPrice));
+
+    // Set Price of each order item.
+    order
+        .getItems()
+        .forEach(orderItemPo -> orderItemPo.setPrice(priceMap.get(orderItemPo.getProductId())));
+
+    // Set order price
+    order.setPrice(
+        order
+            .getItems()
+            .stream()
+            .map(OrderItems::getPrice)
+            .collect(Collectors.toList())
+            .stream()
+            .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+    return order;
+  }
 }

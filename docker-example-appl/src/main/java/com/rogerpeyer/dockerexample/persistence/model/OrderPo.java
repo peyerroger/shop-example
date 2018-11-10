@@ -2,27 +2,61 @@ package com.rogerpeyer.dockerexample.persistence.model;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Version;
 
-@RedisHash("order")
+@Entity
 public class OrderPo {
 
   @Id
-  private String id;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-  private List<OrderItemPo> items;
+  @Version private Long version;
 
   private OffsetDateTime lastModified;
-
   private OffsetDateTime createdOn;
 
-  public String getId() {
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "ORDER_ITEM", joinColumns = @JoinColumn(name = "ORDER_ID"))
+  private List<OrderItemPo> items;
+
+  /** Pre persist. */
+  @PrePersist
+  public void prePersist() {
+    createdOn = OffsetDateTime.now();
+    lastModified = OffsetDateTime.now();
+  }
+
+  /** Pre update. */
+  @PreUpdate
+  public void preUpdate() {
+    lastModified = OffsetDateTime.now();
+  }
+
+  public Long getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(Long id) {
     this.id = id;
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
   }
 
   public List<OrderItemPo> getItems() {

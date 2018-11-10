@@ -17,21 +17,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/product'
       operationId: GetProducts
-    post:
-      responses:
-        201:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/product'
-      operationId: PostProduct
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/productInput'
-        required: true
   /products/{productId}:
     get:
       responses:
@@ -42,33 +27,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/product'
       operationId: GetProductByProductId
-    put:
-      responses:
-        200:
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/product'
-      operationId: PutProductByProductId
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/productInput'
-        required: true
-    delete:
-      responses:
-        200:
-          description: ''
-      operationId: DeleteProductByProductId
     parameters:
     - name: productId
       in: path
       required: true
       schema:
-        type: integer
-        format: int64
+        type: string
   /orders:
     get:
       responses:
@@ -131,35 +95,15 @@ paths:
       in: path
       required: true
       schema:
-        type: string
+        type: integer
+        format: int64
 components:
   schemas:
-    productInput:
-      type: object
-      properties:
-        version:
-          type: integer
-          format: int64
-        name:
-          type: string
-        price:
-          type: number
-        releaseDate:
-          type: string
-          format: date
-      required:
-      - name
-      - price
-      - releaseDate
     product:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-        version:
-          type: integer
-          format: int64
+          type: string
         name:
           type: string
         price:
@@ -175,7 +119,6 @@ components:
           format: date-time
       required:
       - id
-      - version
       - name
       - price
       - releaseDate
@@ -185,13 +128,13 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         version:
           type: integer
           format: int64
         price:
           type: number
-          format: double
         items:
           type: array
           items:
@@ -201,11 +144,9 @@ components:
                 type: integer
                 format: int32
               productId:
-                type: integer
-                format: int64
+                type: string
               price:
                 type: number
-                format: double
             required:
               - quantity
               - productId
@@ -238,8 +179,7 @@ components:
                 type: integer
                 format: int32
               productId:
-                type: integer
-                format: int64
+                type: string
             required:
               - quantity
               - productId
