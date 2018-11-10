@@ -9,7 +9,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,15 +23,22 @@ public class OrderService {
   public Order calculateOutput(OrderPo orderPo) {
     Order order = new Order();
     order.setId(orderPo.getId());
+    order.setVersion(orderPo.getVersion());
     order.setCreatedOn(orderPo.getCreatedOn());
     order.setLastModified(orderPo.getLastModified());
     if (orderPo.getItems() != null) {
-      order.setItems(orderPo.getItems().stream().map(orderItemPo -> {
-        OrderItems orderItems = new OrderItems();
-        orderItems.setQuantity(orderItemPo.getQuantity());
-        orderItems.setProductId(orderItemPo.getProductId());
-        return orderItems;
-      }).collect(Collectors.toList()));
+      order.setItems(
+          orderPo
+              .getItems()
+              .stream()
+              .map(
+                  orderItemPo -> {
+                    OrderItems orderItems = new OrderItems();
+                    orderItems.setQuantity(orderItemPo.getQuantity());
+                    orderItems.setProductId(orderItemPo.getProductId());
+                    return orderItems;
+                  })
+              .collect(Collectors.toList()));
     }
     return order;
   }
@@ -43,12 +49,11 @@ public class OrderService {
    * @param orderPos the persistence objects
    * @return the api objects.
    */
-  public List<Order> calculateOutput(Iterable<OrderPo> orderPos) {
+  public List<Order> calculateOutput(List<OrderPo> orderPos) {
     if (orderPos == null) {
       return new ArrayList<>();
     } else {
-      return StreamSupport.stream(orderPos.spliterator(), false)
-          .map(this::calculateOutput).collect(Collectors.toList());
+      return orderPos.stream().map(this::calculateOutput).collect(Collectors.toList());
     }
   }
 
@@ -56,25 +61,30 @@ public class OrderService {
    * Merges an existing persistence object with an api object.
    *
    * @param orderInput the api object
-   * @param orderPo    the existing persistence object
+   * @param orderPo the existing persistence object
    */
   public OrderPo calculateInput(OrderInput orderInput, OrderPo orderPo) {
     if (orderPo == null) {
       orderPo = new OrderPo();
-      orderPo.setCreatedOn(OffsetDateTime.now());
+    } else {
+      orderPo.setVersion(orderInput.getVersion());
     }
-    orderPo.setLastModified(OffsetDateTime.now());
     if (orderInput.getItems() != null) {
-      orderPo.setItems(orderInput.getItems().stream().map(orderInputItems -> {
-        OrderItemPo orderItemPo = new OrderItemPo();
-        orderItemPo.setQuantity(orderInputItems.getQuantity());
-        orderItemPo.setProductId(orderInputItems.getProductId());
-        return orderItemPo;
-      }).collect(Collectors.toList()));
+      orderPo.setItems(
+          orderInput
+              .getItems()
+              .stream()
+              .map(
+                  orderInputItems -> {
+                    OrderItemPo orderItemPo = new OrderItemPo();
+                    orderItemPo.setQuantity(orderInputItems.getQuantity());
+                    orderItemPo.setProductId(orderInputItems.getProductId());
+                    return orderItemPo;
+                  })
+              .collect(Collectors.toList()));
     } else {
       orderPo.setItems(null);
     }
     return orderPo;
   }
-
 }

@@ -4,7 +4,7 @@ import com.rogerpeyer.dockerexample.api.OrdersApi;
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
-import com.rogerpeyer.dockerexample.persistence.repository.redis.OrderRepository;
+import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
 import com.rogerpeyer.dockerexample.service.order.OrderService;
 import java.util.List;
 import javax.validation.Valid;
@@ -20,28 +20,29 @@ public class OrdersApiImpl implements OrdersApi {
   private final OrderRepository orderRepository;
 
   @Autowired
-  public OrdersApiImpl(OrderService orderService,
-      OrderRepository orderRepository) {
+  public OrdersApiImpl(OrderService orderService, OrderRepository orderRepository) {
     this.orderService = orderService;
     this.orderRepository = orderRepository;
   }
 
   @Override
-  public ResponseEntity<Void> deleteOrderByOrderId(String orderId) {
+  public ResponseEntity<Void> deleteOrderByOrderId(Long orderId) {
     orderRepository.deleteById(orderId);
     return ResponseEntity.ok().build();
   }
 
   @Override
-  public ResponseEntity<Order> getOrderByOrderId(String orderId) {
-    OrderPo orderPo = orderRepository.findById(orderId)
-        .orElseThrow(() -> new RuntimeException("Could not find Order."));
+  public ResponseEntity<Order> getOrderByOrderId(Long orderId) {
+    OrderPo orderPo =
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Could not find Order."));
     return ResponseEntity.ok(orderService.calculateOutput(orderPo));
   }
 
   @Override
   public ResponseEntity<List<Order>> getOrders() {
-    Iterable<OrderPo> orderPos = orderRepository.findAll();
+    List<OrderPo> orderPos = orderRepository.findAll();
     return ResponseEntity.ok(orderService.calculateOutput(orderPos));
   }
 
@@ -49,15 +50,15 @@ public class OrdersApiImpl implements OrdersApi {
   public ResponseEntity<Order> postOrder(@Valid OrderInput orderInput) {
     OrderPo orderPo = orderService.calculateInput(orderInput, null);
     orderPo = orderRepository.save(orderPo);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(orderService.calculateOutput(orderPo));
+    return ResponseEntity.status(HttpStatus.CREATED).body(orderService.calculateOutput(orderPo));
   }
 
   @Override
-  public ResponseEntity<Order> putOrderByOrderId(String orderId, @Valid OrderInput orderInput) {
-    OrderPo orderPo = orderRepository.findById(orderId)
-        .orElseThrow(() -> new RuntimeException("Could not find Order."));
+  public ResponseEntity<Order> putOrderByOrderId(Long orderId, @Valid OrderInput orderInput) {
+    OrderPo orderPo =
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Could not find Order."));
     orderPo = orderService.calculateInput(orderInput, orderPo);
     orderPo = orderRepository.save(orderPo);
     return ResponseEntity.ok(orderService.calculateOutput(orderPo));

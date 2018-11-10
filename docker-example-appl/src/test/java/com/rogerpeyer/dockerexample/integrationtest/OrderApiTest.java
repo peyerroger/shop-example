@@ -5,12 +5,12 @@ import com.rogerpeyer.dockerexample.api.model.OrderInput;
 import com.rogerpeyer.dockerexample.api.model.OrderInputItems;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
-import com.rogerpeyer.dockerexample.persistence.repository.redis.OrderRepository;
+import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,10 +22,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class OrderApiTest extends ApiTest {
+public class OrderApiTest extends AbstractTest {
 
-  @Autowired
-  private OrderRepository orderRepository;
+  @Autowired private OrderRepository orderRepository;
 
   @After
   public void after() {
@@ -37,7 +36,7 @@ public class OrderApiTest extends ApiTest {
 
     OrderItemPo orderItemPo = new OrderItemPo();
     orderItemPo.setQuantity(7);
-    orderItemPo.setProductId(new Random().nextLong());
+    orderItemPo.setProductId(UUID.randomUUID().toString());
 
     OrderPo orderPo = new OrderPo();
     orderPo.setCreatedOn(OffsetDateTime.now());
@@ -46,7 +45,7 @@ public class OrderApiTest extends ApiTest {
 
     OrderItemPo orderItemPo1 = new OrderItemPo();
     orderItemPo1.setQuantity(7);
-    orderItemPo1.setProductId(new Random().nextLong());
+    orderItemPo1.setProductId(UUID.randomUUID().toString());
 
     OrderPo orderPo1 = new OrderPo();
     orderPo1.setCreatedOn(OffsetDateTime.now());
@@ -56,13 +55,9 @@ public class OrderApiTest extends ApiTest {
     orderRepository.save(orderPo);
     orderRepository.save(orderPo1);
 
-    ResponseEntity<List<Order>> responseEntity = testRestTemplate.exchange(
-        "/orders",
-        HttpMethod.GET,
-        null,
-        new ParameterizedTypeReference<List<Order>>() {
-        }
-    );
+    ResponseEntity<List<Order>> responseEntity =
+        testRestTemplate.exchange(
+            "/orders", HttpMethod.GET, null, new ParameterizedTypeReference<List<Order>>() {});
 
     Assert.assertNotNull(responseEntity);
     Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -72,7 +67,6 @@ public class OrderApiTest extends ApiTest {
 
     Assert.assertNotNull(orders);
     Assert.assertEquals(2, orders.size());
-
   }
 
   @Test
@@ -80,7 +74,7 @@ public class OrderApiTest extends ApiTest {
 
     OrderItemPo orderItemPo = new OrderItemPo();
     orderItemPo.setQuantity(7);
-    orderItemPo.setProductId(new Random().nextLong());
+    orderItemPo.setProductId(UUID.randomUUID().toString());
 
     OrderPo orderPo = new OrderPo();
     orderPo.setCreatedOn(OffsetDateTime.now());
@@ -89,10 +83,8 @@ public class OrderApiTest extends ApiTest {
 
     orderPo = orderRepository.save(orderPo);
 
-    ResponseEntity<Order> responseEntity = testRestTemplate.getForEntity(
-        "/orders/" + orderPo.getId(),
-        Order.class
-    );
+    ResponseEntity<Order> responseEntity =
+        testRestTemplate.getForEntity("/orders/" + orderPo.getId(), Order.class);
 
     Assert.assertNotNull(responseEntity);
     Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -101,7 +93,6 @@ public class OrderApiTest extends ApiTest {
     Order order = responseEntity.getBody();
 
     Assert.assertNotNull(order.getId());
-
   }
 
   @Test
@@ -109,7 +100,7 @@ public class OrderApiTest extends ApiTest {
 
     OrderItemPo orderItemPo = new OrderItemPo();
     orderItemPo.setQuantity(8);
-    orderItemPo.setProductId(new Random().nextLong());
+    orderItemPo.setProductId(UUID.randomUUID().toString());
 
     OrderPo orderPo = new OrderPo();
     orderPo.setCreatedOn(OffsetDateTime.now());
@@ -120,21 +111,22 @@ public class OrderApiTest extends ApiTest {
 
     OrderInputItems orderInputItems = new OrderInputItems();
     orderInputItems.setQuantity(7);
-    orderInputItems.setProductId(new Random().nextLong());
+    orderInputItems.setProductId(UUID.randomUUID().toString());
 
     OrderInputItems orderInputItems2 = new OrderInputItems();
     orderInputItems2.setQuantity(7);
-    orderInputItems2.setProductId(new Random().nextLong());
+    orderInputItems2.setProductId(UUID.randomUUID().toString());
 
     OrderInput orderInput = new OrderInput();
+    orderInput.setVersion(orderPo.getVersion());
     orderInput.setItems(Arrays.asList(orderInputItems, orderInputItems2));
 
-    ResponseEntity<Order> responseEntity = testRestTemplate.exchange(
-        "/orders/" + orderPo.getId(),
-        HttpMethod.PUT,
-        new HttpEntity<>(orderInput, new HttpHeaders()),
-        Order.class
-    );
+    ResponseEntity<Order> responseEntity =
+        testRestTemplate.exchange(
+            "/orders/" + orderPo.getId(),
+            HttpMethod.PUT,
+            new HttpEntity<>(orderInput, new HttpHeaders()),
+            Order.class);
 
     Assert.assertNotNull(responseEntity);
     Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -145,12 +137,13 @@ public class OrderApiTest extends ApiTest {
     Assert.assertNotNull(order.getId());
     Assert.assertEquals(orderPo.getId(), order.getId());
 
-    orderPo = orderRepository.findById(order.getId())
-        .orElseThrow(() -> new RuntimeException("Could not find order."));
+    orderPo =
+        orderRepository
+            .findById(order.getId())
+            .orElseThrow(() -> new RuntimeException("Could not find order."));
 
     Assert.assertNotNull(orderPo.getItems());
     Assert.assertEquals(2, orderPo.getItems().size());
-
   }
 
   @Test
@@ -158,16 +151,13 @@ public class OrderApiTest extends ApiTest {
 
     OrderInputItems orderInputItems = new OrderInputItems();
     orderInputItems.setQuantity(7);
-    orderInputItems.setProductId(new Random().nextLong());
+    orderInputItems.setProductId(UUID.randomUUID().toString());
 
     OrderInput orderInput = new OrderInput();
     orderInput.setItems(Collections.singletonList(orderInputItems));
 
-    ResponseEntity<Order> responseEntity = testRestTemplate.postForEntity(
-        "/orders",
-        orderInput,
-        Order.class
-    );
+    ResponseEntity<Order> responseEntity =
+        testRestTemplate.postForEntity("/orders", orderInput, Order.class);
 
     Assert.assertNotNull(responseEntity);
     Assert.assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
@@ -177,12 +167,13 @@ public class OrderApiTest extends ApiTest {
 
     Assert.assertNotNull(order.getId());
 
-    OrderPo orderPo = orderRepository.findById(order.getId())
-        .orElseThrow(() -> new RuntimeException("Could not find order."));
+    OrderPo orderPo =
+        orderRepository
+            .findById(order.getId())
+            .orElseThrow(() -> new RuntimeException("Could not find order."));
 
     Assert.assertNotNull(orderPo.getItems());
     Assert.assertEquals(1, orderPo.getItems().size());
-
   }
 
   @Test
@@ -190,7 +181,7 @@ public class OrderApiTest extends ApiTest {
 
     OrderItemPo orderItemPo = new OrderItemPo();
     orderItemPo.setQuantity(7);
-    orderItemPo.setProductId(new Random().nextLong());
+    orderItemPo.setProductId(UUID.randomUUID().toString());
 
     OrderPo orderPo = new OrderPo();
     orderPo.setCreatedOn(OffsetDateTime.now());
@@ -199,12 +190,9 @@ public class OrderApiTest extends ApiTest {
 
     orderPo = orderRepository.save(orderPo);
 
-    ResponseEntity<Void> responseEntity = testRestTemplate.exchange(
-        "/orders/" + orderPo.getId(),
-        HttpMethod.DELETE,
-        null,
-        Void.class
-    );
+    ResponseEntity<Void> responseEntity =
+        testRestTemplate.exchange(
+            "/orders/" + orderPo.getId(), HttpMethod.DELETE, null, Void.class);
 
     Assert.assertNotNull(responseEntity);
     Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -212,6 +200,5 @@ public class OrderApiTest extends ApiTest {
     orderPo = orderRepository.findById(orderPo.getId()).orElse(null);
 
     Assert.assertNull(orderPo);
-
   }
 }

@@ -1,10 +1,13 @@
 package com.rogerpeyer.dockerexample.persistence.model;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class OrderItemPo {
 
   private Integer quantity;
 
-  private Long productId;
+  private String productId;
 
   public Integer getQuantity() {
     return quantity;
@@ -14,11 +17,11 @@ public class OrderItemPo {
     this.quantity = quantity;
   }
 
-  public Long getProductId() {
+  public String getProductId() {
     return productId;
   }
 
-  public void setProductId(Long productId) {
+  public void setProductId(String productId) {
     this.productId = productId;
   }
 }

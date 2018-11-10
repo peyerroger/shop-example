@@ -18,6 +18,7 @@ allprojects {
             classpath "org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE"
             classpath "com.bmuschko:gradle-docker-plugin:4.0.1"
             classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.1"
+            classpath "gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.6"
         }
     }
 }
