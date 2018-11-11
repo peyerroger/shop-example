@@ -2,7 +2,7 @@ package com.rogerpeyer.dockerexample.service.order;
 
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
-import com.rogerpeyer.dockerexample.api.model.OrderItems;
+import com.rogerpeyer.dockerexample.api.model.OrderItem;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
@@ -45,15 +45,14 @@ public class OrderService {
               .stream()
               .map(
                   orderItemPo -> {
-                    OrderItems orderItems = new OrderItems();
+                    OrderItem orderItems = new OrderItem();
                     orderItems.setQuantity(orderItemPo.getQuantity());
                     orderItems.setProductId(orderItemPo.getProductId());
                     return orderItems;
                   })
               .collect(Collectors.toList()));
     }
-    order = calculatePrices(order);
-    return order;
+    return calculatePrices(order);
   }
 
   /**
@@ -111,7 +110,7 @@ public class OrderService {
                         order
                             .getItems()
                             .stream()
-                            .map(OrderItems::getProductId)
+                            .map(OrderItem::getProductId)
                             .collect(Collectors.toSet()))
                     .spliterator(),
                 false)
@@ -127,7 +126,7 @@ public class OrderService {
         order
             .getItems()
             .stream()
-            .map(OrderItems::getPrice)
+            .map(OrderItem::getPrice)
             .collect(Collectors.toList())
             .stream()
             .reduce(BigDecimal.ZERO, BigDecimal::add));

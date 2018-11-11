@@ -138,19 +138,7 @@ components:
         items:
           type: array
           items:
-            type: object
-            properties:
-              quantity:
-                type: integer
-                format: int32
-              productId:
-                type: string
-              price:
-                type: number
-            required:
-              - quantity
-              - productId
-              - price
+            $ref: '#/components/schemas/orderItem'
         createdOn:
           type: string
           format: date-time
@@ -164,6 +152,20 @@ components:
       - items
       - createdOn
       - lastModified
+    orderItem:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        productId:
+          type: string
+        price:
+          type: number
+      required:
+      - quantity
+      - productId
+      - price
     orderInput:
       type: object
       properties:
@@ -173,18 +175,20 @@ components:
         items:
           type: array
           items:
-            type: object
-            properties:
-              quantity:
-                type: integer
-                format: int32
-              productId:
-                type: string
-            required:
-              - quantity
-              - productId
+            $ref: '#/components/schemas/orderItemInput'
       required:
       - items
+    orderItemInput:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        productId:
+          type: string
+      required:
+      - quantity
+      - productId
   responses: {}
   parameters: {}
   examples: {}

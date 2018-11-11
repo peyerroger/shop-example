@@ -2,7 +2,7 @@ package com.rogerpeyer.dockerexample.integrationtest;
 
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
-import com.rogerpeyer.dockerexample.api.model.OrderInputItems;
+import com.rogerpeyer.dockerexample.api.model.OrderItemInput;
 import com.rogerpeyer.dockerexample.integrationtest.util.ProductUtil;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
@@ -122,14 +122,13 @@ public class OrderApiTest extends AbstractTest {
 
     orderPo = orderRepository.save(orderPo);
 
-
-    OrderInputItems orderInputItems = new OrderInputItems();
+    OrderItemInput orderInputItems = new OrderItemInput();
     orderInputItems.setQuantity(7);
     orderInputItems.setProductId(productPo.getId());
 
     ProductPo productPo2 = productRepository.save(ProductUtil.newPoInstance());
 
-    OrderInputItems orderInputItems2 = new OrderInputItems();
+    OrderItemInput orderInputItems2 = new OrderItemInput();
     orderInputItems2.setQuantity(8);
     orderInputItems2.setProductId(productPo2.getId());
 
@@ -167,7 +166,7 @@ public class OrderApiTest extends AbstractTest {
 
     ProductPo productPo = productRepository.save(ProductUtil.newPoInstance());
 
-    OrderInputItems orderInputItems = new OrderInputItems();
+    OrderItemInput orderInputItems = new OrderItemInput();
     orderInputItems.setQuantity(7);
     orderInputItems.setProductId(productPo.getId());
 
