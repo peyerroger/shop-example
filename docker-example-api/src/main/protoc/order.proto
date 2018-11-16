@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package rogerpeyer;
+
+option java_package = "com.rogerpeyer.spi.proto";
+
+message Order {
+  string id = 1;
+  string name = 2;
+  string price = 3;
+  google.protobuf.Timestamp createdOn = 4;
+  google.protobuf.Timestamp lastModified = 5;
+  repeated OrderItem items = 6;
+}
+
+message OrderItem {
+  string productId = 1;
+  int64 quantity = 2;
+  string price = 3;
+}

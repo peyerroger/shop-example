@@ -2,6 +2,7 @@ package com.rogerpeyer.dockerexample.integrationtest;
 
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
+import com.rogerpeyer.dockerexample.api.model.OrderItem;
 import com.rogerpeyer.dockerexample.api.model.OrderItemInput;
 import com.rogerpeyer.dockerexample.integrationtest.util.ProductUtil;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
@@ -9,6 +10,7 @@ import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
 import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +40,7 @@ public class OrderApiTest extends AbstractTest {
   @Test
   public void getOrders() {
 
-    ProductPo productPo1 = productRepository.save(ProductUtil.newPoInstance());
+    ProductPo productPo1 = productRepository.save(ProductUtil.newPoInstance(BigDecimal.TEN));
 
     OrderItemPo orderItemPo = new OrderItemPo();
     orderItemPo.setQuantity(7);
@@ -49,10 +51,10 @@ public class OrderApiTest extends AbstractTest {
     orderPo.setLastModified(OffsetDateTime.now());
     orderPo.setItems(Collections.singletonList(orderItemPo));
 
-    ProductPo productPo2 = productRepository.save(ProductUtil.newPoInstance());
+    ProductPo productPo2 = productRepository.save(ProductUtil.newPoInstance(BigDecimal.valueOf(6)));
 
     OrderItemPo orderItemPo1 = new OrderItemPo();
-    orderItemPo1.setQuantity(7);
+    orderItemPo1.setQuantity(8);
     orderItemPo1.setProductId(productPo2.getId());
 
     OrderPo orderPo1 = new OrderPo();
@@ -75,22 +77,44 @@ public class OrderApiTest extends AbstractTest {
 
     Assert.assertNotNull(orders);
     Assert.assertEquals(2, orders.size());
+
+    Order order1 = findOrder(orderPo.getId(), orders);
+    Assert.assertEquals(BigDecimal.valueOf(70), order1.getPrice());
+
+    Order order2 = findOrder(orderPo1.getId(), orders);
+    Assert.assertEquals(BigDecimal.valueOf(48), order2.getPrice());
+  }
+
+  private Order findOrder(Long orderId, List<Order> orders) {
+    for (Order order : orders) {
+      if (order.getId().equals(orderId)) {
+        return order;
+      }
+    }
+    return null;
   }
 
   @Test
   public void getOrder() {
 
-    ProductPo productPo = ProductUtil.newPoInstance();
+    ProductPo productPo = ProductUtil.newPoInstance(BigDecimal.TEN);
     productPo = productRepository.save(productPo);
+
+    ProductPo productPo2 = ProductUtil.newPoInstance(BigDecimal.valueOf(6));
+    productPo2 = productRepository.save(productPo2);
 
     OrderItemPo orderItemPo = new OrderItemPo();
     orderItemPo.setQuantity(7);
     orderItemPo.setProductId(productPo.getId());
 
+    OrderItemPo orderItemPo2 = new OrderItemPo();
+    orderItemPo2.setQuantity(8);
+    orderItemPo2.setProductId(productPo2.getId());
+
     OrderPo orderPo = new OrderPo();
     orderPo.setCreatedOn(OffsetDateTime.now());
     orderPo.setLastModified(OffsetDateTime.now());
-    orderPo.setItems(Collections.singletonList(orderItemPo));
+    orderPo.setItems(Arrays.asList(orderItemPo, orderItemPo2));
 
     orderPo = orderRepository.save(orderPo);
 
@@ -104,6 +128,22 @@ public class OrderApiTest extends AbstractTest {
     Order order = responseEntity.getBody();
 
     Assert.assertNotNull(order.getId());
+    Assert.assertEquals(BigDecimal.valueOf(118), order.getPrice());
+
+    OrderItem orderItem1 = findOrderItem(orderItemPo.getProductId(), order.getItems());
+    Assert.assertEquals(BigDecimal.valueOf(70), orderItem1.getPrice());
+
+    OrderItem orderItem2 = findOrderItem(orderItemPo2.getProductId(), order.getItems());
+    Assert.assertEquals(BigDecimal.valueOf(48), orderItem2.getPrice());
+  }
+
+  private OrderItem findOrderItem(String productId, List<OrderItem> orderItems) {
+    for (OrderItem orderItem : orderItems) {
+      if (orderItem.getProductId().equals(productId)) {
+        return orderItem;
+      }
+    }
+    return null;
   }
 
   @Test

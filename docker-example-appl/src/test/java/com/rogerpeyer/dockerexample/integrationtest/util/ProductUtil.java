@@ -20,6 +20,11 @@ public class ProductUtil {
         UUID.randomUUID().toString(), BigDecimal.valueOf(new Random().nextDouble()));
   }
 
+  public static ProductPo newPoInstance(BigDecimal price) {
+    return newPoInstance(
+        UUID.randomUUID().toString(), price);
+  }
+
   private static ProductPo newPoInstance(String id, BigDecimal price) {
     ProductPo productPo = new ProductPo();
     productPo.setId(id);

@@ -3,10 +3,13 @@ package com.rogerpeyer.dockerexample.controller.order;
 import com.rogerpeyer.dockerexample.api.OrdersApi;
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
+import com.rogerpeyer.dockerexample.controller.order.converter.OrderConverter;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
 import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
-import com.rogerpeyer.dockerexample.service.order.OrderService;
+import com.rogerpeyer.dockerexample.service.order.OrderPricingService;
+import com.rogerpeyer.dockerexample.service.order.model.OrderPricing;
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,12 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OrdersApiImpl implements OrdersApi {
 
-  private final OrderService orderService;
+  private final OrderPricingService orderPricingService;
+  private final OrderConverter orderConverter;
   private final OrderRepository orderRepository;
 
   @Autowired
-  public OrdersApiImpl(OrderService orderService, OrderRepository orderRepository) {
-    this.orderService = orderService;
+  public OrdersApiImpl(
+      OrderPricingService orderPricingService,
+      OrderConverter orderConverter,
+      OrderRepository orderRepository) {
+    this.orderPricingService = orderPricingService;
+    this.orderConverter = orderConverter;
     this.orderRepository = orderRepository;
   }
 
@@ -37,20 +45,27 @@ public class OrdersApiImpl implements OrdersApi {
         orderRepository
             .findById(orderId)
             .orElseThrow(() -> new RuntimeException("Could not find Order."));
-    return ResponseEntity.ok(orderService.calculateOutput(orderPo));
+    OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
+    return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }
 
   @Override
   public ResponseEntity<List<Order>> getOrders() {
     List<OrderPo> orderPos = orderRepository.findAll();
-    return ResponseEntity.ok(orderService.calculateOutput(orderPos));
+
+    Map<String, OrderPricing> orderIdOrderPricingMap =
+        orderPricingService.getOrderIdOrderPricingMap(orderPos);
+
+    return ResponseEntity.ok(orderConverter.convertOutput(orderPos, orderIdOrderPricingMap));
   }
 
   @Override
   public ResponseEntity<Order> postOrder(@Valid OrderInput orderInput) {
-    OrderPo orderPo = orderService.calculateInput(orderInput, null);
+    OrderPo orderPo = orderConverter.convertInput(orderInput, null);
     orderPo = orderRepository.save(orderPo);
-    return ResponseEntity.status(HttpStatus.CREATED).body(orderService.calculateOutput(orderPo));
+    OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
+    Order order = orderConverter.convertOutput(orderPo, orderPricing);
+    return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
   @Override
@@ -59,8 +74,9 @@ public class OrdersApiImpl implements OrdersApi {
         orderRepository
             .findById(orderId)
             .orElseThrow(() -> new RuntimeException("Could not find Order."));
-    orderPo = orderService.calculateInput(orderInput, orderPo);
+    orderPo = orderConverter.convertInput(orderInput, orderPo);
     orderPo = orderRepository.save(orderPo);
-    return ResponseEntity.ok(orderService.calculateOutput(orderPo));
+    OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
+    return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }
 }

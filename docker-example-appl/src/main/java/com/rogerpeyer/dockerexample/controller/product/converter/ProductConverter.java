@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.service.product;
+package com.rogerpeyer.dockerexample.controller.product.converter;
 
 import com.rogerpeyer.dockerexample.api.model.Product;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
@@ -9,7 +9,7 @@ import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductService {
+public class ProductConverter {
 
   /**
    * Calculate the output product.
