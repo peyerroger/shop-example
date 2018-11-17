@@ -21,8 +21,7 @@ public class ProductUtil {
   }
 
   public static ProductPo newPoInstance(BigDecimal price) {
-    return newPoInstance(
-        UUID.randomUUID().toString(), price);
+    return newPoInstance(UUID.randomUUID().toString(), price);
   }
 
   private static ProductPo newPoInstance(String id, BigDecimal price) {

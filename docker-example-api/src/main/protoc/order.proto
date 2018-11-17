@@ -8,15 +8,13 @@ option java_package = "com.rogerpeyer.spi.proto";
 
 message Order {
   string id = 1;
-  string name = 2;
-  string price = 3;
-  google.protobuf.Timestamp createdOn = 4;
-  google.protobuf.Timestamp lastModified = 5;
-  repeated OrderItem items = 6;
+  int64 version = 2;
+  google.protobuf.Timestamp createdOn = 3;
+  google.protobuf.Timestamp lastModified = 4;
+  repeated OrderItem items = 5;
 }
 
 message OrderItem {
   string productId = 1;
   int64 quantity = 2;
-  string price = 3;
 }

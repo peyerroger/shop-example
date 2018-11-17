@@ -1,20 +1,32 @@
 package com.rogerpeyer.dockerexample.integrationtest;
 
+import com.google.common.collect.Iterators;
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
 import com.rogerpeyer.dockerexample.api.model.OrderItem;
 import com.rogerpeyer.dockerexample.api.model.OrderItemInput;
+import com.rogerpeyer.dockerexample.eventproducer.order.OrderProducer;
 import com.rogerpeyer.dockerexample.integrationtest.util.ProductUtil;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
 import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.spi.proto.OrderOuterClass;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import lombok.extern.log4j.Log4j2;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +37,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 
+@Log4j2
 public class OrderApiTest extends AbstractTest {
 
   @Autowired private OrderRepository orderRepository;
@@ -131,6 +146,7 @@ public class OrderApiTest extends AbstractTest {
     Assert.assertEquals(BigDecimal.valueOf(118), order.getPrice());
 
     OrderItem orderItem1 = findOrderItem(orderItemPo.getProductId(), order.getItems());
+    assert orderItem1 != null;
     Assert.assertEquals(BigDecimal.valueOf(70), orderItem1.getPrice());
 
     OrderItem orderItem2 = findOrderItem(orderItemPo2.getProductId(), order.getItems());
@@ -147,7 +163,7 @@ public class OrderApiTest extends AbstractTest {
   }
 
   @Test
-  public void putOrder() {
+  public void putOrder() throws Exception {
 
     ProductPo productPo = productRepository.save(ProductUtil.newPoInstance());
 
@@ -199,10 +215,19 @@ public class OrderApiTest extends AbstractTest {
 
     Assert.assertNotNull(orderPo.getItems());
     Assert.assertEquals(2, orderPo.getItems().size());
+
+    try (Consumer<String, byte[]> consumer = getConsumer()) {
+      embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, OrderProducer.TOPIC);
+      Iterator<ConsumerRecord<String, byte[]>> iterator =
+          KafkaTestUtils.getRecords(consumer, 1000).iterator();
+      ConsumerRecord<String, byte[]> last = Iterators.getLast(iterator);
+      OrderOuterClass.Order orderEvent = OrderOuterClass.Order.parseFrom(last.value());
+      Assert.assertEquals(order.getId().toString(), orderEvent.getId());
+    }
   }
 
   @Test
-  public void postOrder() {
+  public void postOrder() throws Exception {
 
     ProductPo productPo = productRepository.save(ProductUtil.newPoInstance());
 
@@ -231,6 +256,15 @@ public class OrderApiTest extends AbstractTest {
 
     Assert.assertNotNull(orderPo.getItems());
     Assert.assertEquals(1, orderPo.getItems().size());
+
+    try (Consumer<String, byte[]> consumer = getConsumer()) {
+      embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, OrderProducer.TOPIC);
+      Iterator<ConsumerRecord<String, byte[]>> iterator =
+          KafkaTestUtils.getRecords(consumer, 1000).iterator();
+      ConsumerRecord<String, byte[]> last = Iterators.getLast(iterator);
+      OrderOuterClass.Order orderEvent = OrderOuterClass.Order.parseFrom(last.value());
+      Assert.assertEquals(order.getId().toString(), orderEvent.getId());
+    }
   }
 
   @Test
@@ -259,5 +293,20 @@ public class OrderApiTest extends AbstractTest {
     orderPo = orderRepository.findById(orderPo.getId()).orElse(null);
 
     Assert.assertNull(orderPo);
+  }
+
+  private Consumer<String, byte[]> getConsumer() {
+
+    Map<String, Object> props =
+        KafkaTestUtils.consumerProps(UUID.randomUUID().toString(), "true", embeddedKafkaBroker);
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
+
+    DefaultKafkaConsumerFactory<String, byte[]> consumerFactory =
+        new DefaultKafkaConsumerFactory<>(props);
+    return consumerFactory.createConsumer();
   }
 }

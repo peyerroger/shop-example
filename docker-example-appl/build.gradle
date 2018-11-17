@@ -11,7 +11,7 @@ apply plugin: "org.openapi.generator"
 
 apply plugin: "com.google.protobuf"
 
-apply plugin: 'idea'
+apply plugin: "idea"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -41,16 +41,19 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
 
     compile group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.2.0.RELEASE'
-    
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
+
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
 
 
     compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.21'
 
     compile group: 'com.h2database', name: 'h2'
     compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.6.1'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator
+
 
     protobuf files("$rootDir/docker-example-api/src/main/protoc")
     
@@ -101,6 +104,7 @@ bootJar {
 
 checkstyle {
     toolVersion '8.14'
+    ignoreFailures false
     checkstyleMain.exclude 'com/rogerpeyer/dockerexample/api/**'
     checkstyleMain.exclude 'com/rogerpeyer/asset/**'
 }

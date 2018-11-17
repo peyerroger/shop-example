@@ -1,27 +1,32 @@
-package com.rogerpeyer.dockerexample.controller.product;
+package com.rogerpeyer.dockerexample.eventlistener.product;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.rogerpeyer.dockerexample.eventlistener.product.converter.ProductConverter;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
-import com.rogerpeyer.dockerexample.service.product.ProductEventService;
 import com.rogerpeyer.spi.proto.ProductOuterClass.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductEventController {
+public class ProductListener {
 
   public static final String TOPIC = "product";
 
   private final ProductRepository productRepository;
-  private final ProductEventService productEventService;
+  private final ProductConverter productConverter;
 
+  /**
+   * Constructor.
+   *
+   * @param productRepository the product repository
+   * @param productConverter the product converter
+   */
   @Autowired
-  public ProductEventController(
-      ProductRepository productRepository, ProductEventService productEventService) {
+  public ProductListener(ProductRepository productRepository, ProductConverter productConverter) {
     this.productRepository = productRepository;
-    this.productEventService = productEventService;
+    this.productConverter = productConverter;
   }
 
   /**
@@ -34,7 +39,7 @@ public class ProductEventController {
     try {
       Product product = Product.parseFrom(data);
       ProductPo productPo = productRepository.findById(product.getId()).orElse(new ProductPo());
-      productPo = productEventService.calculatePersistentObject(product, productPo);
+      productPo = productConverter.convert(product, productPo);
       productRepository.save(productPo);
     } catch (InvalidProtocolBufferException e) {
       e.printStackTrace();

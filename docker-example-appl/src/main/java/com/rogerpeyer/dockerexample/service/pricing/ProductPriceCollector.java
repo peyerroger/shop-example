@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.service.order;
+package com.rogerpeyer.dockerexample.service.pricing;
 
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
@@ -23,6 +23,18 @@ public class ProductPriceCollector {
     this.productRepository = productRepository;
   }
 
+  Map<String, BigDecimal> getProductUnitPriceMap(OrderPo orderPo) {
+    return StreamSupport.stream(
+            productRepository.findAllById(collectProductIds(orderPo)).spliterator(), false)
+        .collect(Collectors.toMap(ProductPo::getId, ProductPo::getPrice));
+  }
+
+  Map<String, BigDecimal> getProductUnitPriceMap(List<OrderPo> orderPos) {
+    return StreamSupport.stream(
+            productRepository.findAllById(collectProductIds(orderPos)).spliterator(), false)
+        .collect(Collectors.toMap(ProductPo::getId, ProductPo::getPrice));
+  }
+
   private Set<String> collectProductIds(OrderPo orderPo) {
     return orderPo.getItems().stream().map(OrderItemPo::getProductId).collect(Collectors.toSet());
   }
@@ -32,17 +44,5 @@ public class ProductPriceCollector {
         .stream()
         .flatMap(orderPo -> collectProductIds(orderPo).stream())
         .collect(Collectors.toSet());
-  }
-
-  Map<String, BigDecimal> getProductUnitPriceMap(OrderPo orderPo) {
-    return StreamSupport.stream(
-        productRepository.findAllById(collectProductIds(orderPo)).spliterator(), false)
-        .collect(Collectors.toMap(ProductPo::getId, ProductPo::getPrice));
-  }
-
-  Map<String, BigDecimal> getProductUnitPriceMap(List<OrderPo> orderPos) {
-    return StreamSupport.stream(
-        productRepository.findAllById(collectProductIds(orderPos)).spliterator(), false)
-        .collect(Collectors.toMap(ProductPo::getId, ProductPo::getPrice));
   }
 }

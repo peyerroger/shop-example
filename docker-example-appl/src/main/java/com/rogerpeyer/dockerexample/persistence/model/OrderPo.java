@@ -13,8 +13,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Version;
+import lombok.Data;
 
 @Entity
+@Data
 public class OrderPo {
 
   @Id
@@ -41,45 +43,5 @@ public class OrderPo {
   @PreUpdate
   public void preUpdate() {
     lastModified = OffsetDateTime.now();
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public Long getVersion() {
-    return version;
-  }
-
-  public void setVersion(Long version) {
-    this.version = version;
-  }
-
-  public List<OrderItemPo> getItems() {
-    return items;
-  }
-
-  public void setItems(List<OrderItemPo> items) {
-    this.items = items;
-  }
-
-  public OffsetDateTime getLastModified() {
-    return lastModified;
-  }
-
-  public void setLastModified(OffsetDateTime lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  public OffsetDateTime getCreatedOn() {
-    return createdOn;
-  }
-
-  public void setCreatedOn(OffsetDateTime createdOn) {
-    this.createdOn = createdOn;
   }
 }

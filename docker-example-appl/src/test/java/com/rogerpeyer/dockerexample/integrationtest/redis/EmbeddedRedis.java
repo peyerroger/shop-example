@@ -21,4 +21,3 @@ public class EmbeddedRedis {
     redisServer.stop();
   }
 }
-

@@ -2,9 +2,9 @@ package com.rogerpeyer.dockerexample.controller.product;
 
 import com.rogerpeyer.dockerexample.api.ProductsApi;
 import com.rogerpeyer.dockerexample.api.model.Product;
+import com.rogerpeyer.dockerexample.controller.product.converter.ProductConverter;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
-import com.rogerpeyer.dockerexample.controller.product.converter.ProductConverter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.service.product;
+package com.rogerpeyer.dockerexample.eventlistener.product.converter;
 
 import com.google.protobuf.Timestamp;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import javax.validation.constraints.NotNull;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class ProductEventService {
+@Component("event.productConverter")
+public class ProductConverter {
 
   /**
    * Calculates the persistent object.
@@ -22,7 +22,7 @@ public class ProductEventService {
    * @param productPo the persistent object.
    * @return the persistent object.
    */
-  public ProductPo calculatePersistentObject(Product product, @NotNull ProductPo productPo) {
+  public ProductPo convert(Product product, @NotNull ProductPo productPo) {
     productPo.setId(product.getId());
     productPo.setName(product.getName());
     productPo.setPrice(new BigDecimal(product.getPrice()));

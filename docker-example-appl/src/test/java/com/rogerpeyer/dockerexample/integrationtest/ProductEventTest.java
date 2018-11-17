@@ -1,7 +1,7 @@
 package com.rogerpeyer.dockerexample.integrationtest;
 
 import com.google.protobuf.Timestamp;
-import com.rogerpeyer.dockerexample.controller.product.ProductEventController;
+import com.rogerpeyer.dockerexample.eventlistener.product.ProductListener;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
 import com.rogerpeyer.spi.proto.ProductOuterClass.Product;
@@ -46,14 +46,14 @@ public class ProductEventTest extends AbstractTest {
 
   @Test
   public void test2() throws Exception {
-    int numberOfProducts = 10000;
+    int numberOfProducts = 1000;
     KafkaTemplate<String, byte[]> template = getKafkaTemplate();
     for (int i = 0; i < numberOfProducts; i++) {
       Product product = newTestInstance();
       template.sendDefault(product.getId(), product.toByteArray());
     }
 
-    Thread.sleep(5000L);
+    Thread.sleep(1000L);
 
     Assert.assertEquals(numberOfProducts, productRepository.count());
   }
@@ -64,7 +64,7 @@ public class ProductEventTest extends AbstractTest {
     senderProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
     ProducerFactory<String, byte[]> pf = new DefaultKafkaProducerFactory<>(senderProps);
     KafkaTemplate<String, byte[]> template = new KafkaTemplate<>(pf);
-    template.setDefaultTopic(ProductEventController.TOPIC);
+    template.setDefaultTopic(ProductListener.TOPIC);
     return template;
   }
 

@@ -28,6 +28,7 @@ public class KafkaConsumerConfig {
     Map<String, Object> props = new HashMap<>();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
     props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     return new DefaultKafkaConsumerFactory<>(
         props, new StringDeserializer(), new ByteArrayDeserializer());
   }

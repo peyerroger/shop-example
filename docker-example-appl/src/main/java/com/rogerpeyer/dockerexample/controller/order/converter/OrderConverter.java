@@ -2,24 +2,30 @@ package com.rogerpeyer.dockerexample.controller.order.converter;
 
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
-import com.rogerpeyer.dockerexample.api.model.OrderItem;
-import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
-import com.rogerpeyer.dockerexample.service.order.model.OrderPricing;
+import com.rogerpeyer.dockerexample.service.pricing.model.OrderPricing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrderConverter {
 
+  private final OrderItemConverter orderItemConverter;
+
+  @Autowired
+  public OrderConverter(OrderItemConverter orderItemConverter) {
+    this.orderItemConverter = orderItemConverter;
+  }
+
   /**
    * Calculate the output product.
    *
    * @param orderPo the persistence object
-   * @param orderPricing
+   * @param orderPricing the order pricing
    * @return the api object.
    */
   public Order convertOutput(OrderPo orderPo, OrderPricing orderPricing) {
@@ -34,15 +40,7 @@ public class OrderConverter {
           orderPo
               .getItems()
               .stream()
-              .map(
-                  orderItemPo -> {
-                    OrderItem orderItem = new OrderItem();
-                    orderItem.setQuantity(orderItemPo.getQuantity());
-                    orderItem.setProductId(orderItemPo.getProductId());
-                    orderItem.setPrice(
-                        orderPricing.getOrderItemPriceMap().get(orderItemPo.getProductId()));
-                    return orderItem;
-                  })
+              .map(orderItemPo -> orderItemConverter.convert(orderItemPo, orderPricing))
               .collect(Collectors.toList()));
     }
     return order;
@@ -85,13 +83,7 @@ public class OrderConverter {
           orderInput
               .getItems()
               .stream()
-              .map(
-                  orderInputItems -> {
-                    OrderItemPo orderItemPo = new OrderItemPo();
-                    orderItemPo.setQuantity(orderInputItems.getQuantity());
-                    orderItemPo.setProductId(orderInputItems.getProductId());
-                    return orderItemPo;
-                  })
+              .map(orderItemConverter::convert)
               .collect(Collectors.toList()));
     } else {
       orderPo.setItems(null);

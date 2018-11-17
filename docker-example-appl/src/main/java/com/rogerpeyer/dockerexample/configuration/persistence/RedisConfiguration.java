@@ -5,8 +5,5 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 
 @Configuration
 @EnableRedisRepositories(
-    basePackages = { "com.rogerpeyer.dockerexample.persistence.repository.redis" }
-)
-public class RedisConfiguration {
-
-}
+    basePackages = {"com.rogerpeyer.dockerexample.persistence.repository.redis"})
+public class RedisConfiguration {}

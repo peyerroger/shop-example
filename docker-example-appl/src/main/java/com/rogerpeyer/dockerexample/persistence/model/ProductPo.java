@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import javax.validation.constraints.NotNull;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 @RedisHash("product")
+@Data
 public class ProductPo {
 
   @Id private String id;
@@ -21,52 +23,4 @@ public class ProductPo {
   private OffsetDateTime lastModified;
 
   private OffsetDateTime createdOn;
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public LocalDate getReleaseDate() {
-    return releaseDate;
-  }
-
-  public void setReleaseDate(LocalDate releaseDate) {
-    this.releaseDate = releaseDate;
-  }
-
-  public OffsetDateTime getLastModified() {
-    return lastModified;
-  }
-
-  public void setLastModified(OffsetDateTime lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  public OffsetDateTime getCreatedOn() {
-    return createdOn;
-  }
-
-  public void setCreatedOn(OffsetDateTime createdOn) {
-    this.createdOn = createdOn;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public BigDecimal getPrice() {
-    return price;
-  }
-
-  public void setPrice(BigDecimal price) {
-    this.price = price;
-  }
 }

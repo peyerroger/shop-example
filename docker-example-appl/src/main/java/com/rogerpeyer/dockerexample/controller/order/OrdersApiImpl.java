@@ -4,10 +4,11 @@ import com.rogerpeyer.dockerexample.api.OrdersApi;
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
 import com.rogerpeyer.dockerexample.controller.order.converter.OrderConverter;
+import com.rogerpeyer.dockerexample.eventproducer.order.OrderProducer;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
 import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
-import com.rogerpeyer.dockerexample.service.order.OrderPricingService;
-import com.rogerpeyer.dockerexample.service.order.model.OrderPricing;
+import com.rogerpeyer.dockerexample.service.pricing.OrderPricingService;
+import com.rogerpeyer.dockerexample.service.pricing.model.OrderPricing;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
@@ -22,15 +23,26 @@ public class OrdersApiImpl implements OrdersApi {
   private final OrderPricingService orderPricingService;
   private final OrderConverter orderConverter;
   private final OrderRepository orderRepository;
+  private final OrderProducer orderProducer;
 
+  /**
+   * Constructor.
+   *
+   * @param orderPricingService the order pricing service
+   * @param orderConverter the order converter
+   * @param orderRepository the order repository
+   * @param orderProducer the order event producer
+   */
   @Autowired
   public OrdersApiImpl(
       OrderPricingService orderPricingService,
       OrderConverter orderConverter,
-      OrderRepository orderRepository) {
+      OrderRepository orderRepository,
+      OrderProducer orderProducer) {
     this.orderPricingService = orderPricingService;
     this.orderConverter = orderConverter;
     this.orderRepository = orderRepository;
+    this.orderProducer = orderProducer;
   }
 
   @Override
@@ -65,6 +77,7 @@ public class OrdersApiImpl implements OrdersApi {
     orderPo = orderRepository.save(orderPo);
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
     Order order = orderConverter.convertOutput(orderPo, orderPricing);
+    orderProducer.publishEvent(orderPo);
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
@@ -77,6 +90,7 @@ public class OrdersApiImpl implements OrdersApi {
     orderPo = orderConverter.convertInput(orderInput, orderPo);
     orderPo = orderRepository.save(orderPo);
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
+    orderProducer.publishEvent(orderPo);
     return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }
 }
