@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.eventlistener.product.converter;
+package com.rogerpeyer.dockerexample.eventsubscribers.product.converter;
 
 import com.google.protobuf.Timestamp;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
@@ -12,8 +12,8 @@ import java.time.ZoneId;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
-@Component("event.productConverter")
-public class ProductConverter {
+@Component
+public class ProductEventConverter {
 
   /**
    * Calculates the persistent object.

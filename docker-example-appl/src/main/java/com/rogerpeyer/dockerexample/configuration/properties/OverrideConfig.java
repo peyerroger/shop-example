@@ -1,5 +1,6 @@
 package com.rogerpeyer.dockerexample.configuration.properties;
 
+import com.rogerpeyer.dockerexample.configuration.properties.factory.YamlPropertySourceFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;

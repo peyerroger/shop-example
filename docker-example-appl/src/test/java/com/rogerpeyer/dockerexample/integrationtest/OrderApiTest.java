@@ -5,7 +5,7 @@ import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
 import com.rogerpeyer.dockerexample.api.model.OrderItem;
 import com.rogerpeyer.dockerexample.api.model.OrderItemInput;
-import com.rogerpeyer.dockerexample.eventproducer.order.OrderProducer;
+import com.rogerpeyer.dockerexample.eventpublisher.order.OrderEventPublisher;
 import com.rogerpeyer.dockerexample.integrationtest.util.ProductUtil;
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
@@ -217,7 +217,7 @@ public class OrderApiTest extends AbstractTest {
     Assert.assertEquals(2, orderPo.getItems().size());
 
     try (Consumer<String, byte[]> consumer = getConsumer()) {
-      embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, OrderProducer.TOPIC);
+      embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, OrderEventPublisher.TOPIC);
       Iterator<ConsumerRecord<String, byte[]>> iterator =
           KafkaTestUtils.getRecords(consumer, 1000).iterator();
       ConsumerRecord<String, byte[]> last = Iterators.getLast(iterator);
@@ -258,7 +258,7 @@ public class OrderApiTest extends AbstractTest {
     Assert.assertEquals(1, orderPo.getItems().size());
 
     try (Consumer<String, byte[]> consumer = getConsumer()) {
-      embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, OrderProducer.TOPIC);
+      embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, OrderEventPublisher.TOPIC);
       Iterator<ConsumerRecord<String, byte[]>> iterator =
           KafkaTestUtils.getRecords(consumer, 1000).iterator();
       ConsumerRecord<String, byte[]> last = Iterators.getLast(iterator);

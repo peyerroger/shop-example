@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.controller.product.converter;
+package com.rogerpeyer.dockerexample.apicontroller.product.converter;
 
 import com.rogerpeyer.dockerexample.api.model.Product;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;

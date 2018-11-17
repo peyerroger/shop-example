@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.eventproducer.order.converter;
+package com.rogerpeyer.dockerexample.eventpublisher.order.converter;
 
 import com.google.protobuf.Timestamp;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
@@ -9,19 +9,19 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component("event.orderConverter")
-public class OrderConverter {
+@Component
+public class OrderEventConverter {
 
-  private final OrderItemConverter orderItemConverter;
+  private final OrderItemEventConverter orderItemEventConverter;
 
   /**
    * Constructor.
    *
-   * @param orderItemConverter the order item converter
+   * @param orderItemEventConverter the order item converter
    */
   @Autowired
-  public OrderConverter(OrderItemConverter orderItemConverter) {
-    this.orderItemConverter = orderItemConverter;
+  public OrderEventConverter(OrderItemEventConverter orderItemEventConverter) {
+    this.orderItemEventConverter = orderItemEventConverter;
   }
 
   /**
@@ -39,7 +39,7 @@ public class OrderConverter {
             orderPo
                 .getItems()
                 .stream()
-                .map(orderItemConverter::convert)
+                .map(orderItemEventConverter::convert)
                 .collect(Collectors.toList()))
         .build();
   }

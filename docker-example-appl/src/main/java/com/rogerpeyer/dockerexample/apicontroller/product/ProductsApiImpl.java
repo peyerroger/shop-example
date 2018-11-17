@@ -1,8 +1,8 @@
-package com.rogerpeyer.dockerexample.controller.product;
+package com.rogerpeyer.dockerexample.apicontroller.product;
 
 import com.rogerpeyer.dockerexample.api.ProductsApi;
 import com.rogerpeyer.dockerexample.api.model.Product;
-import com.rogerpeyer.dockerexample.controller.product.converter.ProductConverter;
+import com.rogerpeyer.dockerexample.apicontroller.product.converter.ProductConverter;
 import com.rogerpeyer.dockerexample.persistence.model.ProductPo;
 import com.rogerpeyer.dockerexample.persistence.repository.redis.ProductRepository;
 import java.util.List;

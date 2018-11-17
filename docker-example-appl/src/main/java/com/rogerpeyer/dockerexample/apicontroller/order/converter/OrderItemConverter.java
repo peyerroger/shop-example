@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.controller.order.converter;
+package com.rogerpeyer.dockerexample.apicontroller.order.converter;
 
 import com.rogerpeyer.dockerexample.api.model.OrderItem;
 import com.rogerpeyer.dockerexample.api.model.OrderItemInput;
@@ -33,7 +33,7 @@ public class OrderItemConverter {
     OrderItem orderItem = new OrderItem();
     orderItem.setQuantity(orderItemPo.getQuantity());
     orderItem.setProductId(orderItemPo.getProductId());
-    orderItem.setPrice(orderPricing.getOrderItemPriceMap().get(orderItemPo.getProductId()));
+    orderItem.setPrice(orderPricing.getPricePerOrderItemMap().get(orderItemPo.getProductId()));
     return orderItem;
   }
 }

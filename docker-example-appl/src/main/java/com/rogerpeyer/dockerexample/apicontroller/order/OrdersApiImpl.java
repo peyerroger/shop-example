@@ -1,10 +1,10 @@
-package com.rogerpeyer.dockerexample.controller.order;
+package com.rogerpeyer.dockerexample.apicontroller.order;
 
 import com.rogerpeyer.dockerexample.api.OrdersApi;
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;
-import com.rogerpeyer.dockerexample.controller.order.converter.OrderConverter;
-import com.rogerpeyer.dockerexample.eventproducer.order.OrderProducer;
+import com.rogerpeyer.dockerexample.apicontroller.order.converter.OrderConverter;
+import com.rogerpeyer.dockerexample.eventpublisher.order.OrderEventPublisher;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;
 import com.rogerpeyer.dockerexample.persistence.repository.jpa.OrderRepository;
 import com.rogerpeyer.dockerexample.service.pricing.OrderPricingService;
@@ -23,26 +23,26 @@ public class OrdersApiImpl implements OrdersApi {
   private final OrderPricingService orderPricingService;
   private final OrderConverter orderConverter;
   private final OrderRepository orderRepository;
-  private final OrderProducer orderProducer;
+  private final OrderEventPublisher orderEventPublisher;
 
   /**
    * Constructor.
    *
-   * @param orderPricingService the order pricing service
+   * @param orderPricingServiceImpl the order pricing service
    * @param orderConverter the order converter
    * @param orderRepository the order repository
-   * @param orderProducer the order event producer
+   * @param orderEventPublisher the order event producer
    */
   @Autowired
   public OrdersApiImpl(
-      OrderPricingService orderPricingService,
+      OrderPricingService orderPricingServiceImpl,
       OrderConverter orderConverter,
       OrderRepository orderRepository,
-      OrderProducer orderProducer) {
-    this.orderPricingService = orderPricingService;
+      OrderEventPublisher orderEventPublisher) {
+    this.orderPricingService = orderPricingServiceImpl;
     this.orderConverter = orderConverter;
     this.orderRepository = orderRepository;
-    this.orderProducer = orderProducer;
+    this.orderEventPublisher = orderEventPublisher;
   }
 
   @Override
@@ -77,7 +77,7 @@ public class OrdersApiImpl implements OrdersApi {
     orderPo = orderRepository.save(orderPo);
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
     Order order = orderConverter.convertOutput(orderPo, orderPricing);
-    orderProducer.publishEvent(orderPo);
+    orderEventPublisher.publish(orderPo);
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 
@@ -90,7 +90,7 @@ public class OrdersApiImpl implements OrdersApi {
     orderPo = orderConverter.convertInput(orderInput, orderPo);
     orderPo = orderRepository.save(orderPo);
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
-    orderProducer.publishEvent(orderPo);
+    orderEventPublisher.publish(orderPo);
     return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }
 }

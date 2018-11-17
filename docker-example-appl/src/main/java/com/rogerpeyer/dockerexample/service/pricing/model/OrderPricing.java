@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class OrderPricing {
-
   private BigDecimal price;
-  private Map<String, BigDecimal> orderItemPriceMap;
+  private Map<String, BigDecimal> pricePerOrderItemMap;
 }

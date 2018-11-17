@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.service.pricing;
+package com.rogerpeyer.dockerexample.service.pricing.impl;
 
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.dockerexample.persistence.model.OrderPo;

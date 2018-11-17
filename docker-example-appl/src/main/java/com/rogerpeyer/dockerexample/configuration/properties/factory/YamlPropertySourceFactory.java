@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.configuration.properties;
+package com.rogerpeyer.dockerexample.configuration.properties.factory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

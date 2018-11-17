@@ -1,4 +1,4 @@
-package com.rogerpeyer.dockerexample.controller.order.converter;
+package com.rogerpeyer.dockerexample.apicontroller.order.converter;
 
 import com.rogerpeyer.dockerexample.api.model.Order;
 import com.rogerpeyer.dockerexample.api.model.OrderInput;

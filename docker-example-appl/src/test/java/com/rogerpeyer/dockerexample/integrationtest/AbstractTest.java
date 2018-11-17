@@ -1,7 +1,7 @@
 package com.rogerpeyer.dockerexample.integrationtest;
 
-import com.rogerpeyer.dockerexample.eventlistener.product.ProductListener;
-import com.rogerpeyer.dockerexample.eventproducer.order.OrderProducer;
+import com.rogerpeyer.dockerexample.eventpublisher.order.OrderEventPublisher;
+import com.rogerpeyer.dockerexample.eventsubscribers.product.ProductEventSubscriber;
 import com.rogerpeyer.dockerexample.integrationtest.redis.EmbeddedRedis;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -18,7 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EmbeddedKafka(
     partitions = 1,
-    topics = {ProductListener.TOPIC, OrderProducer.TOPIC},
+    topics = {ProductEventSubscriber.TOPIC, OrderEventPublisher.TOPIC},
     brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "auto.create.topics.enable=true"})
 public abstract class AbstractTest {
 

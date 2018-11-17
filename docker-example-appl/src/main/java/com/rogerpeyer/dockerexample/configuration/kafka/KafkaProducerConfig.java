@@ -15,20 +15,6 @@ import org.springframework.kafka.core.ProducerFactory;
 public class KafkaProducerConfig {
 
   /**
-   * Producer factory bean.
-   *
-   * @return the producer factory
-   */
-  @Bean
-  public ProducerFactory<String, byte[]> producerFactory() {
-    Map<String, Object> configProps = new HashMap<>();
-    configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-    configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
-    return new DefaultKafkaProducerFactory<>(configProps);
-  }
-
-  /**
    * Kafka template bean.
    *
    * @return the kafka template
@@ -36,5 +22,13 @@ public class KafkaProducerConfig {
   @Bean
   public KafkaTemplate<String, byte[]> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());
+  }
+
+  private ProducerFactory<String, byte[]> producerFactory() {
+    Map<String, Object> configProps = new HashMap<>();
+    configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+    configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+    return new DefaultKafkaProducerFactory<>(configProps);
   }
 }

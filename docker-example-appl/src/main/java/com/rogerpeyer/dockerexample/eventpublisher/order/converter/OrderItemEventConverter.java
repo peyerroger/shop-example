@@ -1,11 +1,11 @@
-package com.rogerpeyer.dockerexample.eventproducer.order.converter;
+package com.rogerpeyer.dockerexample.eventpublisher.order.converter;
 
 import com.rogerpeyer.dockerexample.persistence.model.OrderItemPo;
 import com.rogerpeyer.spi.proto.OrderOuterClass.OrderItem;
 import org.springframework.stereotype.Component;
 
-@Component("event.orderItemConverter")
-public class OrderItemConverter {
+@Component
+public class OrderItemEventConverter {
 
   /**
    * Converts PO to TO.
