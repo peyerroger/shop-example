@@ -7,5 +7,7 @@ pluginManagement {
 }
 rootProject.name = 'order-service'
 include 'order-service-appl'
-include 'order-service-api'
+include 'order-service-open-api'
+include 'order-service-protobuf-api'
+include 'product-service-appl'
 

@@ -9,8 +9,6 @@ apply plugin: "com.bmuschko.docker-spring-boot-application"
 
 apply plugin: "org.openapi.generator"
 
-apply plugin: "com.google.protobuf"
-
 apply plugin: "idea"
 
 sourceCompatibility = 1.8
@@ -24,7 +22,10 @@ repositories {
 sourceSets {
     main {
         java {
-            srcDirs = ['build/openapi/order-service-api/src/main/java','build/generated/source/proto/src/main/java','src/main/java']
+            srcDirs = [
+                    'build/openapi/order-service-open-api/src/main/java',
+                    'src/main/java'
+            ]
         }
     }
 }
@@ -37,6 +38,9 @@ configurations {
 
 dependencies {
 
+    compile project(':order-service-open-api')
+    compile project(':order-service-protobuf-api')
+
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
@@ -47,14 +51,9 @@ dependencies {
 
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
 
-
     compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.21'
 
     compile group: 'com.h2database', name: 'h2'
-    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.6.1'
-
-    protobuf files("$rootDir/order-service-api/src/main/protoc")
-    
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
@@ -77,8 +76,8 @@ docker {
 task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
     group = "openapi"
     generatorName = "spring"
-    inputSpec = "$rootDir/order-service-api/build/openapi/spec/$project.version/openapi.yaml".toString()
-    outputDir = "$buildDir/openapi/order-service-api/".toString()
+    inputSpec = "$rootDir/order-service-open-api/build/processed/$project.version/openapi.yaml".toString()
+    outputDir = "$buildDir/openapi/order-service-open-api/".toString()
     library = "spring-mvc"
     apiPackage = "com.rogerpeyer.orderservice.api"
     modelPackage = "com.rogerpeyer.orderservice.api.model"
@@ -87,13 +86,6 @@ task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.Gen
             java8        : "true",
             interfaceOnly: "true"
     ]
-}
-
-protobuf {
-    protoc {
-        // Download from repositories
-        artifact = 'com.google.protobuf:protoc:3.0.2'
-    }
 }
 
 bootJar {
@@ -108,5 +100,4 @@ checkstyle {
 }
 
 compileJava.dependsOn tasks.openApiGenerateApi
-compileJava.dependsOn 'generateProto'
-openApiGenerateApi.dependsOn ':order-service-api:openApiGenerateFinalSpec'
+openApiGenerateApi.dependsOn ':order-service-open-api:openApiGenerateFinalSpec'
