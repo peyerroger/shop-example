@@ -5,7 +5,7 @@ pluginManagement {
         jcenter()
     }
 }
-rootProject.name = 'docker-example'
-include 'docker-example-appl'
-include 'docker-example-api'
+rootProject.name = 'order-service'
+include 'order-service-appl'
+include 'order-service-api'
 
