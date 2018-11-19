@@ -1,7 +1,8 @@
-package com.rogerpeyer.orderservice.integrationtest.util;
+package com.rogerpeyer.productservice.integrationtest.util;
 
-import com.rogerpeyer.orderservice.persistence.model.ProductPo;
+import com.rogerpeyer.productservice.persistence.model.ProductPo;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Random;
 import java.util.UUID;
 
@@ -26,7 +27,9 @@ public class ProductUtil {
   private static ProductPo newPoInstance(String id, BigDecimal price) {
     ProductPo productPo = new ProductPo();
     productPo.setId(id);
+    productPo.setName(UUID.randomUUID().toString());
     productPo.setPrice(price);
+    productPo.setReleaseDate(LocalDate.now().minusYears(1));
     return productPo;
   }
 }

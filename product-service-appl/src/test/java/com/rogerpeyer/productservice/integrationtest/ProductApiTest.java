@@ -1,9 +1,9 @@
-package com.rogerpeyer.orderservice.integrationtest;
+package com.rogerpeyer.productservice.integrationtest;
 
-import com.rogerpeyer.orderservice.api.model.Product;
-import com.rogerpeyer.orderservice.integrationtest.util.ProductUtil;
-import com.rogerpeyer.orderservice.persistence.model.ProductPo;
-import com.rogerpeyer.orderservice.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.productservice.api.model.Product;
+import com.rogerpeyer.productservice.integrationtest.util.ProductUtil;
+import com.rogerpeyer.productservice.persistence.model.ProductPo;
+import com.rogerpeyer.productservice.persistence.repository.ProductRepository;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.After;

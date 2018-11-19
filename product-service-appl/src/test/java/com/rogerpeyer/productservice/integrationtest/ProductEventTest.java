@@ -1,10 +1,10 @@
-package com.rogerpeyer.orderservice.integrationtest;
+package com.rogerpeyer.productservice.integrationtest;
 
 import com.google.protobuf.Timestamp;
-import com.rogerpeyer.orderservice.eventsubscribers.product.ProductEventSubscriber;
-import com.rogerpeyer.orderservice.persistence.model.ProductPo;
-import com.rogerpeyer.orderservice.persistence.repository.redis.ProductRepository;
 import com.rogerpeyer.product.event.spi.ProductOuterClass.Product;
+import com.rogerpeyer.productservice.eventsubscribers.product.ProductEventSubscriber;
+import com.rogerpeyer.productservice.persistence.model.ProductPo;
+import com.rogerpeyer.productservice.persistence.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

@@ -1,10 +1,10 @@
-package com.rogerpeyer.orderservice.apicontroller.product;
+package com.rogerpeyer.productservice.apicontroller.product;
 
-import com.rogerpeyer.orderservice.api.ProductsApi;
-import com.rogerpeyer.orderservice.api.model.Product;
-import com.rogerpeyer.orderservice.apicontroller.product.converter.ProductConverter;
-import com.rogerpeyer.orderservice.persistence.model.ProductPo;
-import com.rogerpeyer.orderservice.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.productservice.api.ProductsApi;
+import com.rogerpeyer.productservice.api.model.Product;
+import com.rogerpeyer.productservice.apicontroller.product.converter.ProductConverter;
+import com.rogerpeyer.productservice.persistence.model.ProductPo;
+import com.rogerpeyer.productservice.persistence.repository.ProductRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

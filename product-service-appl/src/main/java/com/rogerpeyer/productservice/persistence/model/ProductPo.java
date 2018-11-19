@@ -1,4 +1,4 @@
-package com.rogerpeyer.orderservice.persistence.model;
+package com.rogerpeyer.productservice.persistence.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,5 +14,13 @@ public class ProductPo {
 
   @Id private String id;
 
+  @NotNull private String name;
+
   @NotNull private BigDecimal price;
+
+  @NotNull private LocalDate releaseDate;
+
+  private OffsetDateTime lastModified;
+
+  private OffsetDateTime createdOn;
 }

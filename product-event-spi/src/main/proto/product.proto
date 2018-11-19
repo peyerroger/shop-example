@@ -4,7 +4,7 @@ import "google/protobuf/timestamp.proto";
 
 package rogerpeyer;
 
-option java_package = "com.rogerpeyer.spi.proto";
+option java_package = "com.rogerpeyer.product.event.spi";
 
 message Product {
   string id = 1;

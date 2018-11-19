@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: @VERSION@
+servers:
+  - url: https://localhost/v1
+paths:
+  /products:
+    get:
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/product'
+      operationId: GetProducts
+  /products/{productId}:
+    get:
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/product'
+      operationId: GetProductByProductId
+    parameters:
+    - name: productId
+      in: path
+      required: true
+      schema:
+        type: string
+components:
+  schemas:
+    product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        releaseDate:
+          type: string
+          format: date
+        createdOn:
+          type: string
+          format: date-time
+        lastModified:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - price
+      - releaseDate
+      - createdOn
+      - lastModified
+  responses: {}
+  parameters: {}
+  examples: {}
+  requestBodies: {}
+  headers: {}
+  securitySchemes: {}
+  links: {}
+  callbacks: {}

@@ -1,7 +1,7 @@
-package com.rogerpeyer.orderservice.apicontroller.product.converter;
+package com.rogerpeyer.productservice.apicontroller.product.converter;
 
-import com.rogerpeyer.orderservice.api.model.Product;
-import com.rogerpeyer.orderservice.persistence.model.ProductPo;
+import com.rogerpeyer.productservice.api.model.Product;
+import com.rogerpeyer.productservice.persistence.model.ProductPo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

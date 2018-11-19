@@ -1,4 +1,4 @@
-package com.rogerpeyer.orderservice.configuration.kafka;
+package com.rogerpeyer.productservice.configuration.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 @Configuration
 public class KafkaConsumerConfig {
 
-  private static final String GROUP_ID = "com.rogerpeyer.orderservice";
+  private static final String GROUP_ID = "com.rogerpeyer.productservice";
 
   /**
    * Creates a concurrent kafka listener container factory.

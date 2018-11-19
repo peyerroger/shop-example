@@ -1,0 +1,42 @@
+apply plugin: "java-library"
+apply plugin: "maven-publish"
+apply plugin: "com.google.protobuf"
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["$buildDir/generated/source/proto/src/main/java"]
+        }
+    }
+}
+
+task protobufZip(type: Zip) {
+    group = "documentation"
+    archiveName "${project.name}.zip"
+    destinationDir file("$buildDir/dist/")
+    from "src/main/proto/"
+}
+
+publishing {
+    publications {
+        mavenDistribution(MavenPublication) {
+            artifact source: protobufZip, extension: 'zip'
+            artifact source: jar, extension: 'jar'
+        }
+    }
+}
+
+dependencies {
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.6.1'
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.6.1'
+    }
+}

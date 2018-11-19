@@ -19,6 +19,15 @@ allprojects {
             classpath "com.bmuschko:gradle-docker-plugin:4.0.1"
             classpath "org.openapitools:openapi-generator-gradle-plugin:3.3.1"
             classpath "gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.6"
+            classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
         }
     }
+
+    apply plugin: "idea"
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
 }

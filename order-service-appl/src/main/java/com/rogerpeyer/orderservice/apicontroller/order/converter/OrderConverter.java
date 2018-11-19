@@ -50,10 +50,11 @@ public class OrderConverter {
    * Converts a list of persistence objects to a list of api objects.
    *
    * @param orderPos the persistence objects
+   * @param orderPricingPerOrderIdMap Order prices per order id map
    * @return the api objects.
    */
   public List<Order> convertOutput(
-      List<OrderPo> orderPos, Map<String, OrderPricing> orderIdOrderPricingMap) {
+      List<OrderPo> orderPos, Map<String, OrderPricing> orderPricingPerOrderIdMap) {
     if (orderPos == null) {
       return new ArrayList<>();
     } else {
@@ -61,7 +62,7 @@ public class OrderConverter {
           .stream()
           .map(
               orderPo ->
-                  convertOutput(orderPo, orderIdOrderPricingMap.get(orderPo.getId().toString())))
+                  convertOutput(orderPo, orderPricingPerOrderIdMap.get(orderPo.getId().toString())))
           .collect(Collectors.toList());
     }
   }
@@ -71,6 +72,7 @@ public class OrderConverter {
    *
    * @param orderInput the api object
    * @param orderPo the existing persistence object
+   * @return the order Po
    */
   public OrderPo convertInput(OrderInput orderInput, OrderPo orderPo) {
     if (orderPo == null) {

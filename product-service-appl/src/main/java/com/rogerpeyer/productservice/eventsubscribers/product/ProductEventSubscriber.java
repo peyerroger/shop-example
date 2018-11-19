@@ -1,10 +1,10 @@
-package com.rogerpeyer.orderservice.eventsubscribers.product;
+package com.rogerpeyer.productservice.eventsubscribers.product;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.rogerpeyer.orderservice.eventsubscribers.product.converter.ProductEventConverter;
-import com.rogerpeyer.orderservice.persistence.model.ProductPo;
-import com.rogerpeyer.orderservice.persistence.repository.redis.ProductRepository;
 import com.rogerpeyer.product.event.spi.ProductOuterClass.Product;
+import com.rogerpeyer.productservice.eventsubscribers.product.converter.ProductEventConverter;
+import com.rogerpeyer.productservice.persistence.model.ProductPo;
+import com.rogerpeyer.productservice.persistence.repository.ProductRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
