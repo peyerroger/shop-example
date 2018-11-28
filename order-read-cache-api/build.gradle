@@ -57,8 +57,8 @@ task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.Gen
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
     outputDir = "$buildDir/openapi-spring-mvc/".toString()
     library = "spring-mvc"
-    apiPackage = "com.rogerpeyer.ordermanagement.api"
-    modelPackage = "com.rogerpeyer.ordermanagement.api.model"
+    apiPackage = "com.rogerpeyer.orderreadcache.api"
+    modelPackage = "com.rogerpeyer.orderreadcache.api.model"
     configOptions = [
             dateLibrary  : "java8",
             java8        : "true",
