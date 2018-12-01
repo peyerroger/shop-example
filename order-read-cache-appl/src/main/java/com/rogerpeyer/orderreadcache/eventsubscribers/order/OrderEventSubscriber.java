@@ -2,10 +2,17 @@ package com.rogerpeyer.orderreadcache.eventsubscribers.order;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.rogerpeyer.orderreadcache.eventsubscribers.order.converter.OrderEventConverter;
+import com.rogerpeyer.orderreadcache.persistence.model.OrderItemPo;
 import com.rogerpeyer.orderreadcache.persistence.model.OrderPo;
-import com.rogerpeyer.orderreadcache.persistence.repository.redis.OrderRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.OrderRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.ProductOrderMapRepository;
 import com.rogerpeyer.spi.proto.OrderOuterClass.Order;
+import com.rogerpeyer.spi.proto.OrderOuterClass.OrderItem;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -20,11 +27,23 @@ public class OrderEventSubscriber {
 
   private final OrderRepository orderRepository;
   private final OrderEventConverter orderEventConverter;
+  private final ProductOrderMapRepository productOrderMapRepository;
 
-  public OrderEventSubscriber(OrderRepository orderRepository,
-      OrderEventConverter orderEventConverter) {
+  /**
+   * Constructor.
+   *
+   * @param orderRepository the order repository
+   * @param orderEventConverter the order event converter
+   * @param productOrderMapRepository the product order map repository
+   */
+  @Autowired
+  public OrderEventSubscriber(
+      OrderRepository orderRepository,
+      OrderEventConverter orderEventConverter,
+      ProductOrderMapRepository productOrderMapRepository) {
     this.orderRepository = orderRepository;
     this.orderEventConverter = orderEventConverter;
+    this.productOrderMapRepository = productOrderMapRepository;
   }
 
   /**
@@ -50,11 +69,68 @@ public class OrderEventSubscriber {
           partition,
           topic,
           offset);
+
       Order order = Order.parseFrom(data);
-      OrderPo orderPo = orderEventConverter.convertOrderItem(order);
+      OrderPo existingOrderPo = orderRepository.findById(order.getId()).orElse(null);
+
+      // Update Product Order Maps
+      if (existingOrderPo != null && !existingOrderPo.getItems().isEmpty()) {
+
+        // Remove all order items which do not exist anymore
+        Map<String, String> toBeRemoved = getToBeRemoved(existingOrderPo, order);
+        productOrderMapRepository.removeAll(toBeRemoved);
+
+        // Add all order items which are new
+        Map<String, String> toBeAdded = getToBeAdded(order, existingOrderPo);
+        productOrderMapRepository.putAll(toBeAdded);
+      } else {
+        // Add all order items
+        Map<String, String> toBeAdded = getProductOrderMap(order);
+        productOrderMapRepository.putAll(toBeAdded);
+      }
+
+      // Store order itself
+      OrderPo orderPo = orderEventConverter.convertOrder(order);
       orderRepository.save(orderPo);
+
     } catch (InvalidProtocolBufferException e) {
       log.error("Could not process product event.", e);
     }
+  }
+
+  private Map<String, String> getProductOrderMap(OrderPo orderPo) {
+    return orderPo
+        .getItems()
+        .stream()
+        .collect(Collectors.toMap(OrderItemPo::getProductId, orderItem -> orderPo.getId()));
+  }
+
+  private Map<String, String> getProductOrderMap(Order order) {
+    return order
+        .getItemsList()
+        .stream()
+        .collect(Collectors.toMap(OrderItem::getProductId, orderItem -> order.getId()));
+  }
+
+  private Set<String> getProductSet(OrderPo orderPo) {
+    return orderPo.getItems().stream().map(OrderItemPo::getProductId).collect(Collectors.toSet());
+  }
+
+  private Set<String> getProductSet(Order order) {
+    return order.getItemsList().stream().map(OrderItem::getProductId).collect(Collectors.toSet());
+  }
+
+  private Map<String, String> getToBeRemoved(OrderPo orderPo, Order order) {
+    Map<String, String> productOrderMap = getProductOrderMap(orderPo);
+    Set<String> productSet = getProductSet(order);
+    productOrderMap.keySet().removeAll(productSet);
+    return productOrderMap;
+  }
+
+  private Map<String, String> getToBeAdded(Order order, OrderPo orderPo) {
+    Map<String, String> productOrderMap = getProductOrderMap(order);
+    Set<String> productSet = getProductSet(orderPo);
+    productOrderMap.keySet().removeAll(productSet);
+    return productOrderMap;
   }
 }

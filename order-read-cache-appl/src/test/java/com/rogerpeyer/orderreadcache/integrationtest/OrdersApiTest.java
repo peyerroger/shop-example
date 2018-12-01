@@ -6,8 +6,8 @@ import com.rogerpeyer.orderreadcache.integrationtest.util.ProductUtil;
 import com.rogerpeyer.orderreadcache.persistence.model.OrderItemPo;
 import com.rogerpeyer.orderreadcache.persistence.model.OrderPo;
 import com.rogerpeyer.orderreadcache.persistence.model.ProductPo;
-import com.rogerpeyer.orderreadcache.persistence.repository.redis.OrderRepository;
-import com.rogerpeyer.orderreadcache.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.OrderRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Log4j2
-public class OrderApiTest extends AbstractTest {
+public class OrdersApiTest extends AbstractTest {
 
   @Autowired private OrderRepository orderRepository;
   @Autowired private ProductRepository productRepository;

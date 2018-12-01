@@ -3,7 +3,7 @@ package com.rogerpeyer.orderreadcache.integrationtest;
 import com.google.protobuf.Timestamp;
 import com.rogerpeyer.orderreadcache.eventsubscribers.product.ProductEventSubscriber;
 import com.rogerpeyer.orderreadcache.persistence.model.ProductPo;
-import com.rogerpeyer.orderreadcache.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.ProductRepository;
 import com.rogerpeyer.product.event.spi.ProductOuterClass.Product;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

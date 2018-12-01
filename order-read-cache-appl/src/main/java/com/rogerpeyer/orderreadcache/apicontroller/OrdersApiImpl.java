@@ -1,10 +1,10 @@
-package com.rogerpeyer.orderreadcache.apicontroller.order;
+package com.rogerpeyer.orderreadcache.apicontroller;
 
 import com.rogerpeyer.orderreadcache.api.OrdersApi;
 import com.rogerpeyer.orderreadcache.api.model.Order;
-import com.rogerpeyer.orderreadcache.apicontroller.order.converter.OrderConverter;
+import com.rogerpeyer.orderreadcache.apicontroller.converter.OrderConverter;
 import com.rogerpeyer.orderreadcache.persistence.model.OrderPo;
-import com.rogerpeyer.orderreadcache.persistence.repository.redis.OrderRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.OrderRepository;
 import com.rogerpeyer.orderreadcache.service.pricing.OrderPricingService;
 import com.rogerpeyer.orderreadcache.service.pricing.model.OrderPricing;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.rogerpeyer.orderreadcache.persistence.repository.redis;
+package com.rogerpeyer.orderreadcache.persistence.repository;
 
 import com.rogerpeyer.orderreadcache.persistence.model.ProductPo;
 import org.springframework.data.repository.CrudRepository;

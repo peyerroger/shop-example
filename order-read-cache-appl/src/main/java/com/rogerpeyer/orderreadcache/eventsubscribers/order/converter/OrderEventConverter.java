@@ -23,7 +23,7 @@ public class OrderEventConverter {
    * @param order the order event
    * @return the OrderPo
    */
-  public OrderPo convertOrderItem(Order order) {
+  public OrderPo convertOrder(Order order) {
     return OrderPo.builder()
         .id(order.getId())
         .createdOn(convertToOffsetDateTime(order.getCreatedOn()))

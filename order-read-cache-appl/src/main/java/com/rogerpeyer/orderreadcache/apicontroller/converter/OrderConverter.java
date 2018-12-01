@@ -1,4 +1,4 @@
-package com.rogerpeyer.orderreadcache.apicontroller.order.converter;
+package com.rogerpeyer.orderreadcache.apicontroller.converter;
 
 import com.rogerpeyer.orderreadcache.api.model.Order;
 import com.rogerpeyer.orderreadcache.persistence.model.OrderPo;

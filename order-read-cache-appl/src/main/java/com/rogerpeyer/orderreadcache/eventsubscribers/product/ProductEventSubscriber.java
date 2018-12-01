@@ -3,7 +3,7 @@ package com.rogerpeyer.orderreadcache.eventsubscribers.product;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.rogerpeyer.orderreadcache.eventsubscribers.product.converter.ProductEventConverter;
 import com.rogerpeyer.orderreadcache.persistence.model.ProductPo;
-import com.rogerpeyer.orderreadcache.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.orderreadcache.persistence.repository.ProductRepository;
 import com.rogerpeyer.product.event.spi.ProductOuterClass.Product;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
