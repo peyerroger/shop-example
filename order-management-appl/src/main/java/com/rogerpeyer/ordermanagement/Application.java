@@ -1,11 +1,11 @@
-package com.rogerpeyer.orderreadcache;
+package com.rogerpeyer.ordermanagement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class OrderReadCacheApplication {
+public class Application {
   public static void main(String[] args) {
-    SpringApplication.run(OrderReadCacheApplication.class, args);
+    SpringApplication.run(Application.class, args);
   }
 }

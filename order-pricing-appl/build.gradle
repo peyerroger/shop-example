@@ -18,11 +18,11 @@ configurations {
 
 dependencies {
 
-    compile project(path: ':order-read-cache-api', configuration: 'springMvcServer')
-    compile project(':order-event-api')
+    compile project(path: ':order-pricing-api', configuration: 'springMvcServer')
     compile project(':product-event-spi')
 
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
@@ -49,7 +49,7 @@ docker {
     }
 
     springBootApplication {
-        tag = "localhost:8083/order-service:$project.version".toString()
+        tag = "localhost:8083/product-service:$project.version".toString()
     }
 }
 
@@ -66,6 +66,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
 
 artifacts {
     archives javadocJar

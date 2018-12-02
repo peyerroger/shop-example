@@ -17,8 +17,8 @@ configurations {
 }
 
 dependencies {
-
-    compile project(':order-management-api')
+    compile project(path: ':order-management-api', configuration: 'springMvcServer')
+    compile project(path: ':order-pricing-api', configuration: 'springRestTemplate')
     compile project(':order-event-api')
     compile project(':product-event-spi')
 
@@ -39,6 +39,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
     testCompile group: 'org.springframework.kafka', name: 'spring-kafka-test', version: '2.2.0.RELEASE'
+    testCompile group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.0.2.RELEASE'
     testCompile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
 
 }

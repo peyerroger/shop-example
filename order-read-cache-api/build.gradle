@@ -1,14 +1,38 @@
-apply plugin: "java-library"
+apply plugin: "java"
 apply plugin: "maven-publish"
 apply plugin: "org.openapi.generator"
 apply plugin: 'com.moowork.node'
 
+import org.openapitools.generator.gradle.plugin.tasks.*
+
 sourceSets {
-    main {
+    springMvcServer {
+        compileClasspath += sourceSets.main.output
         java {
-            srcDirs = ["$buildDir/openapi-spring-mvc".toString()]
+            srcDirs = [
+                    "$buildDir/openapi-spring-mvc".toString()
+            ]
         }
     }
+    springRestTemplate {
+        compileClasspath += sourceSets.main.output
+        java {
+            srcDirs = [
+                    "$buildDir/openapi-spring-resttemplate".toString()
+            ]
+        }
+    }
+}
+
+
+configurations {
+    springMvcServer
+    springMvcServerCompile.extendsFrom compile
+    springMvcServerRuntime.extendsFrom runtime
+    springRestTemplate
+    springRestTemplateCompile.extendsFrom compile
+    springRestTemplateRuntime.extendsFrom runtime
+    openApi
 }
 
 dependencies {
@@ -17,25 +41,56 @@ dependencies {
 }
 
 task openApiGenerateFinalSpec(type: Copy) {
-    group = "openapi"
+    group = "build"
     from('src/main/api') {
         eachFile { filter { it.replaceAll('@VERSION@', project.version.toString()) } }
     }
     into "$buildDir/processed/$project.version"
 }
 
-task zipOpenapi(type: Zip) {
-    group = "openapi"
+
+task springMvcServerJar(type: Jar) {
+    group = "build"
+    archiveName = "${project.name}.jar"
+    from(sourceSets.springMvcServer.output) {
+        include '**/*.class'
+    }
+}
+
+task springRestTemplateJar(type: Jar) {
+    group = "build"
+    archiveName = "${project.name}.jar"
+    from(sourceSets.springRestTemplate.output) {
+        include '**/*.class'
+    }
+}
+
+task openApiZip(type: Zip) {
+    group = "build"
     archiveName "${project.name}.zip"
     destinationDir file("$buildDir/dist/")
     from "$buildDir/processed/$project.version/"
 }
 
+artifacts {
+    openApi openApiZip
+    springMvcServer springMvcServerJar
+    springRestTemplate springRestTemplateJar
+}
+
 publishing {
     publications {
-        mavenDistribution(MavenPublication) {
-            artifact source: zipOpenapi, extension: 'zip'
-            artifact source: jar, extension: 'jar'
+        openApiPublication(MavenPublication) {
+            artifactId "${project.name}-openapi"
+            artifact openApiZip
+        }
+        springRestTemplatePublication(MavenPublication) {
+            artifactId "${project.name}-spring-resttemplate"
+            artifact springRestTemplateJar
+        }
+        springMvcServerPublication(MavenPublication) {
+            artifactId "${project.name}-spring-mvc"
+            artifact springMvcServerJar
         }
     }
 }
@@ -44,14 +99,21 @@ openApiValidate {
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
 }
 
-task openApiGenerateAngular2Api(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
+task angular7ClientGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
     group = "openapi"
     generatorName = "typescript-angular"
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
     outputDir = "$buildDir/openapi-typescript-angular/".toString()
+    configOptions = [
+            ngVersion    : 7,
+            npmName      : "@rogerpeyer/${project.name}-angular-7",
+            npmVersion   : "${project.version}",
+            npmRepository: "http://localhost:8081/repository/npm-hosted/",
+            snapshot     : false
+    ]
 }
 
-task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
+task springMvcSergerGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
     group = "openapi"
     generatorName = "spring"
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
@@ -66,11 +128,33 @@ task openApiGenerateApi(type: org.openapitools.generator.gradle.plugin.tasks.Gen
     ]
 }
 
-node {
-    nodeModulesDir = file("$buildDir/openapi-typescript-angular/".toString())
+task springRestTemplateGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
+    group = "openapi"
+    generatorName = "java"
+    inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
+    outputDir = "$buildDir/openapi-spring-resttemplate/".toString()
+    library = "resttemplate"
+    apiPackage = "com.rogerpeyer.orderreadcache.client.api"
+    modelPackage = "com.rogerpeyer.orderreadcache.client.api.model"
+    configOptions = [
+            dateLibrary: "java8",
+            java8      : "true"
+    ]
 }
 
-compileJava.dependsOn tasks.openApiGenerateApi
+node {
+    distBaseUrl = "http://localhost:8081/repository/npm-group/"
+}
+
+task publishAngular7ClientToNpm(type: NpmTask, dependsOn: tasks.angular7ClientGenerate ) {
+    group = "publishing"
+    environment = ['AUTH_TOKEN': project.property('npm.token')]
+    workingDir = file("$buildDir/openapi-typescript-angular/".toString())
+    args = ['publish']
+}
+
+compileJava.dependsOn tasks.springMvcSergerGenerate
+compileJava.dependsOn tasks.springRestTemplateGenerate
 tasks.openApiValidate.dependsOn tasks.openApiGenerateFinalSpec
 check.dependsOn tasks.openApiValidate
-npmInstall.dependsOn tasks.openApiGenerateAngular2Api
+publish.dependsOn tasks.publishAngular7ClientToNpm

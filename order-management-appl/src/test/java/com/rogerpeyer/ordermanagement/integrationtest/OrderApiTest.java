@@ -1,5 +1,12 @@
 package com.rogerpeyer.ordermanagement.integrationtest;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.rogerpeyer.ordermanagement.api.model.Order;
 import com.rogerpeyer.ordermanagement.api.model.OrderInput;
@@ -12,9 +19,11 @@ import com.rogerpeyer.ordermanagement.persistence.model.OrderPo;
 import com.rogerpeyer.ordermanagement.persistence.model.ProductPo;
 import com.rogerpeyer.ordermanagement.persistence.repository.jpa.OrderRepository;
 import com.rogerpeyer.ordermanagement.persistence.repository.redis.ProductRepository;
+import com.rogerpeyer.orderpricing.client.api.model.OrderPricing;
 import com.rogerpeyer.spi.proto.OrderOuterClass;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -29,6 +38,7 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -45,6 +55,19 @@ public class OrderApiTest extends AbstractTest {
 
   @Autowired private OrderRepository orderRepository;
   @Autowired private ProductRepository productRepository;
+
+  @Before
+  public void before() throws JsonProcessingException {
+    OrderPricing orderPricing = new OrderPricing();
+    orderPricing.setPrice(BigDecimal.TEN);
+    orderPricing.setOrderItemPricings(new ArrayList<>());
+    stubFor(
+        put(urlEqualTo("/orders-pricing"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(new ObjectMapper().writeValueAsString(orderPricing))));
+  }
 
   @After
   public void after() {

@@ -1,12 +1,16 @@
 openapi: 3.0.0
 info:
-  title: Product API
+  title: Product Read Cache API
   version: @VERSION@
 servers:
-  - url: https://localhost/v1
+- url: https://localhost/v1
+tags:
+- name: productReadCache
 paths:
   /products:
     get:
+      tags:
+      - productReadCache
       responses:
         200:
           description: ''
@@ -19,6 +23,8 @@ paths:
       operationId: GetProducts
   /products/{productId}:
     get:
+      tags:
+      - productReadCache
       responses:
         200:
           description: ''

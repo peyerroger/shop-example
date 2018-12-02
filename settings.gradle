@@ -6,9 +6,11 @@ pluginManagement {
     }
 }
 rootProject.name = 'order-service'
-include 'order-management-appl'
 include 'order-management-api'
+include 'order-management-appl'
 include 'order-event-api'
+include 'order-pricing-api'
+include 'order-pricing-appl'
 include 'order-read-cache-api'
 include 'order-read-cache-appl'
 include 'product-read-cache-appl'

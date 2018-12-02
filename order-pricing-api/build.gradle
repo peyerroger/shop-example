@@ -119,8 +119,8 @@ task springMvcSergerGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerat
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
     outputDir = "$buildDir/openapi-spring-mvc/".toString()
     library = "spring-mvc"
-    apiPackage = "com.rogerpeyer.ordermanagement.api"
-    modelPackage = "com.rogerpeyer.ordermanagement.api.model"
+    apiPackage = "com.rogerpeyer.orderpricing.api"
+    modelPackage = "com.rogerpeyer.orderpricing.api.model"
     configOptions = [
             dateLibrary  : "java8",
             java8        : "true",
@@ -134,8 +134,8 @@ task springRestTemplateGenerate(type: GenerateTask, dependsOn: tasks.openApiGene
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
     outputDir = "$buildDir/openapi-spring-resttemplate/".toString()
     library = "resttemplate"
-    apiPackage = "com.rogerpeyer.ordermanagement.client.api"
-    modelPackage = "com.rogerpeyer.ordermanagement.client.api.model"
+    apiPackage = "com.rogerpeyer.orderpricing.client.api"
+    modelPackage = "com.rogerpeyer.orderpricing.client.api.model"
     configOptions = [
             dateLibrary: "java8",
             java8      : "true"

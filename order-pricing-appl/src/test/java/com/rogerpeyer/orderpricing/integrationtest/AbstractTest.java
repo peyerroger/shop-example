@@ -1,14 +1,12 @@
-package com.rogerpeyer.ordermanagement.integrationtest;
+package com.rogerpeyer.orderpricing.integrationtest;
 
-import com.rogerpeyer.ordermanagement.eventpublisher.order.OrderEventPublisher;
-import com.rogerpeyer.ordermanagement.eventsubscribers.product.ProductEventSubscriber;
-import com.rogerpeyer.ordermanagement.integrationtest.redis.EmbeddedRedis;
+import com.rogerpeyer.orderpricing.eventsubscribers.product.ProductEventSubscriber;
+import com.rogerpeyer.orderpricing.integrationtest.redis.EmbeddedRedis;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
@@ -19,9 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EmbeddedKafka(
     partitions = 1,
-    topics = {ProductEventSubscriber.TOPIC, OrderEventPublisher.TOPIC},
+    topics = {ProductEventSubscriber.TOPIC},
     brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "auto.create.topics.enable=true"})
-@AutoConfigureWireMock(port = 80)
 public abstract class AbstractTest {
 
   private static boolean isKafkaInitialized = false;

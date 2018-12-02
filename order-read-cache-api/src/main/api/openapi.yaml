@@ -1,12 +1,16 @@
 openapi: 3.0.0
 info:
-  title: Product API
+  title: Order Read Cache API
   version: @VERSION@
 servers:
-  - url: https://localhost/v1
+- url: https://localhost/v1
+tags:
+- name: orderReadCache
 paths:
   /orders:
     get:
+      tags:
+      - orderReadCache
       responses:
         200:
           description: ''
@@ -19,6 +23,8 @@ paths:
       operationId: GetOrders
   /orders/{orderId}:
     get:
+      tags:
+      - orderReadCache
       responses:
         200:
           description: ''
@@ -35,6 +41,8 @@ paths:
         type: string
   /products/{productId}/orders:
     get:
+      tags:
+      - orderReadCache
       responses:
         200:
           description: 'order per product'

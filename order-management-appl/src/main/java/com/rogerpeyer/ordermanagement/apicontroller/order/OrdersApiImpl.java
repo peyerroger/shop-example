@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import com.rogerpeyer.orderpricing.client.api.OrderPricingApi;
 
 @RestController
 public class OrdersApiImpl implements OrdersApi {
@@ -24,25 +25,28 @@ public class OrdersApiImpl implements OrdersApi {
   private final OrderConverter orderConverter;
   private final OrderRepository orderRepository;
   private final OrderEventPublisher orderEventPublisher;
+  private final OrderPricingApi orderPricingApi;
 
   /**
    * Constructor.
-   *
-   * @param orderPricingServiceImpl the order pricing service
+   *  @param orderPricingServiceImpl the order pricing service
    * @param orderConverter the order converter
    * @param orderRepository the order repository
    * @param orderEventPublisher the order event producer
+   * @param orderPricingApi the order pricing api
    */
   @Autowired
   public OrdersApiImpl(
       OrderPricingService orderPricingServiceImpl,
       OrderConverter orderConverter,
       OrderRepository orderRepository,
-      OrderEventPublisher orderEventPublisher) {
+      OrderEventPublisher orderEventPublisher,
+      OrderPricingApi orderPricingApi) {
     this.orderPricingService = orderPricingServiceImpl;
     this.orderConverter = orderConverter;
     this.orderRepository = orderRepository;
     this.orderEventPublisher = orderEventPublisher;
+    this.orderPricingApi = orderPricingApi;
   }
 
   @Override
@@ -57,6 +61,7 @@ public class OrdersApiImpl implements OrdersApi {
         orderRepository
             .findById(orderId)
             .orElseThrow(() -> new RuntimeException("Could not find Order."));
+    orderPricingApi.requestOrderPricing(new com.rogerpeyer.orderpricing.client.api.model.Order());
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
     return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }

@@ -1,0 +1,118 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  version: @VERSION@
+servers:
+- url: https://localhost/v1
+tags:
+- name: orderPricing
+paths:
+  /orders-pricing:
+    put:
+      tags:
+      - orderPricing
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orderPricing'
+      operationId: RequestOrderPricing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/order'
+        required: true
+  /orders-pricing/bulk:
+    put:
+      tags:
+      - orderPricing
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/orderPricings'
+      operationId: RequestBulkOrderPricing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/orders'
+        required: true
+components:
+  schemas:
+    order:
+      type: object
+      properties:
+        id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/orderItem'
+      required:
+      - items
+    orders:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/order'
+      required:
+      - orders
+    orderItem:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        productId:
+          type: string
+      required:
+      - quantity
+      - productId
+    orderPricings:
+      type: object
+      properties:
+        orderPricings:
+          type: array
+          items:
+            $ref: '#/components/schemas/orderPricing'
+      required:
+      - orderPricings
+    orderPricing:
+      type: object
+      properties:
+        orderId:
+          type: string
+        price:
+          type: number
+        orderItemPricings:
+          type: array
+          items:
+            $ref: '#/components/schemas/orderItemPricing'
+      required:
+      - price
+      - orderItemPricings
+    orderItemPricing:
+      type: object
+      properties:
+        price:
+          type: number
+        productId:
+          type: string
+      required:
+      - items
+  responses: {}
+  parameters: {}
+  examples: {}
+  requestBodies: {}
+  headers: {}
+  securitySchemes: {}
+  links: {}
+  callbacks: {}
