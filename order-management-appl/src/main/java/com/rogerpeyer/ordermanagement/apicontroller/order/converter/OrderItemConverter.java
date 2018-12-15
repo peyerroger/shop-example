@@ -3,7 +3,10 @@ package com.rogerpeyer.ordermanagement.apicontroller.order.converter;
 import com.rogerpeyer.ordermanagement.api.model.OrderItem;
 import com.rogerpeyer.ordermanagement.api.model.OrderItemInput;
 import com.rogerpeyer.ordermanagement.persistence.model.OrderItemPo;
-import com.rogerpeyer.ordermanagement.service.pricing.model.OrderPricing;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,14 +29,16 @@ public class OrderItemConverter {
    * Converts a PO to a TO.
    *
    * @param orderItemPo the PO
-   * @param orderPricing the pricing
+   * @param orderItemPricing the pricing
    * @return the TO
    */
-  public OrderItem convert(OrderItemPo orderItemPo, OrderPricing orderPricing) {
+  public OrderItem convert(
+      OrderItemPo orderItemPo,
+      com.rogerpeyer.orderpricing.client.api.model.OrderItemPricing orderItemPricing) {
     OrderItem orderItem = new OrderItem();
     orderItem.setQuantity(orderItemPo.getQuantity());
     orderItem.setProductId(orderItemPo.getProductId());
-    orderItem.setPrice(orderPricing.getPricePerOrderItemMap().get(orderItemPo.getProductId()));
+    orderItem.setPrice(orderItemPricing.getPrice());
     return orderItem;
   }
 }

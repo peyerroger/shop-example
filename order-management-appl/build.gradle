@@ -63,12 +63,3 @@ checkstyle {
     toolVersion '8.14'
     ignoreFailures false
 }
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives javadocJar
-}

@@ -7,46 +7,42 @@ import com.rogerpeyer.ordermanagement.apicontroller.order.converter.OrderConvert
 import com.rogerpeyer.ordermanagement.eventpublisher.order.OrderEventPublisher;
 import com.rogerpeyer.ordermanagement.persistence.model.OrderPo;
 import com.rogerpeyer.ordermanagement.persistence.repository.jpa.OrderRepository;
-import com.rogerpeyer.ordermanagement.service.pricing.OrderPricingService;
-import com.rogerpeyer.ordermanagement.service.pricing.model.OrderPricing;
+import com.rogerpeyer.ordermanagement.service.orderpricing.OrderPricingService;
+import com.rogerpeyer.orderpricing.client.api.model.OrderPricing;
+import com.rogerpeyer.orderpricing.client.api.model.OrderPricings;
 import java.util.List;
-import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import com.rogerpeyer.orderpricing.client.api.OrderPricingApi;
 
 @RestController
 public class OrdersApiImpl implements OrdersApi {
 
-  private final OrderPricingService orderPricingService;
   private final OrderConverter orderConverter;
   private final OrderRepository orderRepository;
   private final OrderEventPublisher orderEventPublisher;
-  private final OrderPricingApi orderPricingApi;
+  private final OrderPricingService orderPricingService;
 
   /**
    * Constructor.
-   *  @param orderPricingServiceImpl the order pricing service
+   *
    * @param orderConverter the order converter
    * @param orderRepository the order repository
    * @param orderEventPublisher the order event producer
-   * @param orderPricingApi the order pricing api
+   * @param orderPricingService the order pricing service
    */
   @Autowired
   public OrdersApiImpl(
-      OrderPricingService orderPricingServiceImpl,
       OrderConverter orderConverter,
       OrderRepository orderRepository,
       OrderEventPublisher orderEventPublisher,
-      OrderPricingApi orderPricingApi) {
-    this.orderPricingService = orderPricingServiceImpl;
+      OrderPricingService orderPricingService) {
     this.orderConverter = orderConverter;
     this.orderRepository = orderRepository;
     this.orderEventPublisher = orderEventPublisher;
-    this.orderPricingApi = orderPricingApi;
+    this.orderPricingService = orderPricingService;
   }
 
   @Override
@@ -61,26 +57,27 @@ public class OrdersApiImpl implements OrdersApi {
         orderRepository
             .findById(orderId)
             .orElseThrow(() -> new RuntimeException("Could not find Order."));
-    orderPricingApi.requestOrderPricing(new com.rogerpeyer.orderpricing.client.api.model.Order());
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
     return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }
 
   @Override
   public ResponseEntity<List<Order>> getOrders() {
+
     List<OrderPo> orderPos = orderRepository.findAll();
 
-    Map<String, OrderPricing> orderIdOrderPricingMap =
-        orderPricingService.getOrderIdOrderPricingMap(orderPos);
+    OrderPricings orderPricings = orderPricingService.getOrderPricings(orderPos);
 
-    return ResponseEntity.ok(orderConverter.convertOutput(orderPos, orderIdOrderPricingMap));
+    return ResponseEntity.ok(orderConverter.convertOutput(orderPos, orderPricings));
   }
 
   @Override
   public ResponseEntity<Order> postOrder(@Valid OrderInput orderInput) {
     OrderPo orderPo = orderConverter.convertInput(orderInput, null);
     orderPo = orderRepository.save(orderPo);
+
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
+
     Order order = orderConverter.convertOutput(orderPo, orderPricing);
     orderEventPublisher.publish(orderPo);
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
@@ -94,7 +91,9 @@ public class OrdersApiImpl implements OrdersApi {
             .orElseThrow(() -> new RuntimeException("Could not find Order."));
     orderPo = orderConverter.convertInput(orderInput, orderPo);
     orderPo = orderRepository.save(orderPo);
+
     OrderPricing orderPricing = orderPricingService.getOrderPricing(orderPo);
+
     orderEventPublisher.publish(orderPo);
     return ResponseEntity.ok(orderConverter.convertOutput(orderPo, orderPricing));
   }

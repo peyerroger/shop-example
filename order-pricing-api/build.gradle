@@ -2,23 +2,29 @@ apply plugin: "java"
 apply plugin: "maven-publish"
 apply plugin: "org.openapi.generator"
 apply plugin: 'com.moowork.node'
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+    imports {
+        mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+}
 
 import org.openapitools.generator.gradle.plugin.tasks.*
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 sourceSets {
     springMvcServer {
-        compileClasspath += sourceSets.main.output
         java {
             srcDirs = [
-                    "$buildDir/openapi-spring-mvc".toString()
+                    "$buildDir/openapi-spring-mvc/src/main/java".toString()
             ]
         }
     }
     springRestTemplate {
-        compileClasspath += sourceSets.main.output
         java {
             srcDirs = [
-                    "$buildDir/openapi-spring-resttemplate".toString()
+                    "$buildDir/openapi-spring-resttemplate/src/main/java".toString()
             ]
         }
     }
@@ -35,8 +41,25 @@ configurations {
     openApi
 }
 
+sourceSets {
+    springRestTemplate {
+        java {
+            srcDirs = [
+                    "$buildDir/openapi-spring-resttemplate/src/main/java"
+            ]
+        }
+    }
+    springMvcServer {
+        java {
+            srcDirs = [
+                    "$buildDir/openapi-spring-mvc/src/main/java"
+            ]
+        }
+    }
+}
+
 dependencies {
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.1.0.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
     compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.21'
 }
 
@@ -113,7 +136,7 @@ task angular7ClientGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerate
     ]
 }
 
-task springMvcSergerGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
+task springMvcServerGenerate(type: GenerateTask, dependsOn: tasks.openApiGenerateFinalSpec) {
     group = "openapi"
     generatorName = "spring"
     inputSpec = "$buildDir/processed/${project.version}/openapi.yaml".toString()
@@ -153,8 +176,10 @@ task publishAngular7ClientToNpm(type: NpmTask, dependsOn: tasks.angular7ClientGe
     args = ['publish']
 }
 
-compileJava.dependsOn tasks.springMvcSergerGenerate
-compileJava.dependsOn tasks.springRestTemplateGenerate
+compileJava.dependsOn compileSpringMvcServerJava
+compileJava.dependsOn compileSpringRestTemplateJava
+compileSpringMvcServerJava.dependsOn tasks.springMvcServerGenerate
+compileSpringRestTemplateJava.dependsOn tasks.springRestTemplateGenerate
 tasks.openApiValidate.dependsOn tasks.openApiGenerateFinalSpec
 check.dependsOn tasks.openApiValidate
 publish.dependsOn tasks.publishAngular7ClientToNpm

@@ -3,7 +3,6 @@ package com.rogerpeyer.ordermanagement.apicontroller.order.converter;
 import com.rogerpeyer.ordermanagement.api.model.Order;
 import com.rogerpeyer.ordermanagement.api.model.OrderInput;
 import com.rogerpeyer.ordermanagement.persistence.model.OrderPo;
-import com.rogerpeyer.ordermanagement.service.pricing.model.OrderPricing;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,8 @@ public class OrderConverter {
    * @param orderPricing the order pricing
    * @return the api object.
    */
-  public Order convertOutput(OrderPo orderPo, OrderPricing orderPricing) {
+  public Order convertOutput(
+      OrderPo orderPo, com.rogerpeyer.orderpricing.client.api.model.OrderPricing orderPricing) {
     Order order = new Order();
     order.setId(orderPo.getId());
     order.setVersion(orderPo.getVersion());
@@ -36,28 +36,56 @@ public class OrderConverter {
     order.setCreatedOn(orderPo.getCreatedOn());
     order.setLastModified(orderPo.getLastModified());
     if (orderPo.getItems() != null) {
+      Map<String, com.rogerpeyer.orderpricing.client.api.model.OrderItemPricing> map =
+          convertToMap(orderPricing.getOrderItemPricings());
       order.setItems(
           orderPo
               .getItems()
               .stream()
-              .map(orderItemPo -> orderItemConverter.convert(orderItemPo, orderPricing))
+              .map(
+                  orderItemPo ->
+                      orderItemConverter.convert(orderItemPo, map.get(orderItemPo.getProductId())))
               .collect(Collectors.toList()));
     }
     return order;
+  }
+
+  private Map<String, com.rogerpeyer.orderpricing.client.api.model.OrderItemPricing> convertToMap(
+      List<com.rogerpeyer.orderpricing.client.api.model.OrderItemPricing> orderItemPricingList) {
+    return orderItemPricingList
+        .stream()
+        .collect(
+            Collectors.toMap(
+                com.rogerpeyer.orderpricing.client.api.model.OrderItemPricing::getProductId,
+                orderItemPricing -> orderItemPricing));
+  }
+
+  private Map<String, com.rogerpeyer.orderpricing.client.api.model.OrderPricing> convertToMap(
+      com.rogerpeyer.orderpricing.client.api.model.OrderPricings orderPricings) {
+    return orderPricings
+        .getOrderPricings()
+        .stream()
+        .collect(
+            Collectors.toMap(
+                com.rogerpeyer.orderpricing.client.api.model.OrderPricing::getOrderId,
+                orderPricing -> orderPricing));
   }
 
   /**
    * Converts a list of persistence objects to a list of api objects.
    *
    * @param orderPos the persistence objects
-   * @param orderPricingPerOrderIdMap Order prices per order id map
+   * @param orderPricings Order prices per order id map
    * @return the api objects.
    */
   public List<Order> convertOutput(
-      List<OrderPo> orderPos, Map<String, OrderPricing> orderPricingPerOrderIdMap) {
+      List<OrderPo> orderPos,
+      com.rogerpeyer.orderpricing.client.api.model.OrderPricings orderPricings) {
     if (orderPos == null) {
       return new ArrayList<>();
     } else {
+      Map<String, com.rogerpeyer.orderpricing.client.api.model.OrderPricing>
+          orderPricingPerOrderIdMap = convertToMap(orderPricings);
       return orderPos
           .stream()
           .map(
